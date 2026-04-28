@@ -22,7 +22,7 @@ function SignupPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -35,8 +35,17 @@ function SignupPage() {
       toast.error(error.message);
       return;
     }
-    toast.success("Account created. Check your email to verify.");
-    navigate({ to: "/home" });
+    if (data.session?.user) {
+      await supabase.from("profiles").upsert({
+        id: data.session.user.id,
+        display_name: displayName.trim(),
+      });
+      toast.success("Account created — welcome to FlowSpring!");
+      navigate({ to: "/home" });
+      return;
+    }
+    toast.success("Account created. Check your email to verify, then log in.");
+    navigate({ to: "/login" });
   };
 
   return (
