@@ -1,19 +1,24 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FlowSpringLogo } from "@/components/FlowSpringLogo";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search) => ({
+    redirect: typeof search.redirect === "string" && search.redirect ? search.redirect : "/home",
+  }),
   component: LoginPage,
   head: () => ({ meta: [{ title: "Log In — FlowSpring" }] }),
 });
 
 function LoginPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,13 +26,14 @@ function LoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await signIn(email.trim(), password);
     setLoading(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-    navigate({ to: "/home" });
+    const redirectTo = search.redirect.startsWith("/") ? search.redirect : "/home";
+    await navigate({ to: redirectTo as never });
   };
 
   return (
