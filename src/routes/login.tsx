@@ -32,7 +32,8 @@ function LoginPage() {
       toast.error(error.message);
       return;
     }
-    await navigate({ to: search.redirect });
+    const redirectTo = search.redirect.startsWith("/") ? search.redirect : "/home";
+    await navigate({ to: redirectTo as never });
   };
 
   return (
