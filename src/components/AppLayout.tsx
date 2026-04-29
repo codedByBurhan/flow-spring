@@ -2,6 +2,8 @@ import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { Home, PlusCircle, MapPin, User } from "lucide-react";
 import { FlowSpringLogo } from "./FlowSpringLogo";
 import { cn } from "@/lib/utils";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 
 const tabs = [
   { to: "/home", label: "Home", icon: Home },
@@ -12,9 +14,20 @@ const tabs = [
 
 export function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const online = useOnlineStatus();
+  useOfflineSync();
 
   return (
     <div className="min-h-screen bg-background flex flex-col lg:flex-row">
+      {!online && (
+        <div
+          role="status"
+          className="fixed top-0 inset-x-0 z-[60] bg-warning text-warning-foreground text-center text-sm py-1.5 font-medium shadow"
+          style={{ backgroundColor: "#FB8C00", color: "#fff" }}
+        >
+          You're offline — reports will sync when you're back online
+        </div>
+      )}
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:bg-surface lg:p-6 lg:gap-2">
         <div className="flex items-center gap-3 mb-8">
