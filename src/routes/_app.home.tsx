@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Bell, Plus, MapPin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { FlowSpringLogo } from "@/components/FlowSpringLogo";
 import { MapPreview } from "@/components/MapPreview";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useIncidentsRealtime } from "@/hooks/useIncidentsRealtime";
+import { haversineDistance } from "@/lib/haversine";
 import type { Incident } from "@/types";
-import { SEVERITY_COLORS, STATUS_COLORS, distanceKm } from "@/lib/incidents";
+import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
 
 export const Route = createFileRoute("/_app/home")({
   head: () => ({ meta: [{ title: "Home — FlowSpring" }] }),
@@ -25,23 +27,24 @@ export const Route = createFileRoute("/_app/home")({
 
 function HomePage() {
   const geo = useGeolocation();
-  const [incidents, setIncidents] = useState<Incident[] | null>(null);
   const [selected, setSelected] = useState<Incident | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data, error } = await supabase
-        .from("incidents")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100);
-      if (!cancelled) setIncidents(error ? [] : (data as Incident[]));
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const seenRef = useRef<Set<string>>(new Set());
+  const geoRef = useRef(geo);
+  geoRef.current = geo;
+  const { incidents } = useIncidentsRealtime({
+    onInsert: (inc) => {
+      if (seenRef.current.has(inc.id)) return;
+      seenRef.current.add(inc.id);
+      const g = geoRef.current;
+      if (g.latitude == null || g.longitude == null) return;
+      if (inc.severity !== "High" && inc.severity !== "Medium") return;
+      const d = haversineDistance(
+        { latitude: g.latitude, longitude: g.longitude },
+        { latitude: inc.latitude, longitude: inc.longitude },
+      );
+      if (d <= 10) toast("New incident reported nearby");
+    },
+  });
 
   const sortedNearby = useMemo(() => {
     if (!incidents) return null;
@@ -51,7 +54,10 @@ function HomePage() {
     return incidents
       .map((i) => ({
         inc: i,
-        km: distanceKm(geo.latitude!, geo.longitude!, i.latitude, i.longitude),
+        km: haversineDistance(
+          { latitude: geo.latitude!, longitude: geo.longitude! },
+          { latitude: i.latitude, longitude: i.longitude },
+        ),
       }))
       .sort((a, b) => (a.km ?? Infinity) - (b.km ?? Infinity))
       .slice(0, 5);
@@ -60,7 +66,11 @@ function HomePage() {
   const nearbyCount = useMemo(() => {
     if (!incidents || geo.latitude == null || geo.longitude == null) return incidents?.length ?? 0;
     return incidents.filter(
-      (i) => distanceKm(geo.latitude!, geo.longitude!, i.latitude, i.longitude) <= 10,
+      (i) =>
+        haversineDistance(
+          { latitude: geo.latitude!, longitude: geo.longitude! },
+          { latitude: i.latitude, longitude: i.longitude },
+        ) <= 10,
     ).length;
   }, [incidents, geo.latitude, geo.longitude]);
 
