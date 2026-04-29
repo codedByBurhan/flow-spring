@@ -15,7 +15,6 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppReportRouteImport } from './routes/_app.report'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
-import { Route as AppMapRouteImport } from './routes/_app.map'
 import { Route as AppHomeRouteImport } from './routes/_app.home'
 
 const SignupRoute = SignupRouteImport.update({
@@ -47,11 +46,6 @@ const AppProfileRoute = AppProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
-const AppMapRoute = AppMapRouteImport.update({
-  id: '/map',
-  path: '/map',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppHomeRoute = AppHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -63,7 +57,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/home': typeof AppHomeRoute
-  '/map': typeof AppMapRoute
   '/profile': typeof AppProfileRoute
   '/report': typeof AppReportRoute
 }
@@ -72,7 +65,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/home': typeof AppHomeRoute
-  '/map': typeof AppMapRoute
   '/profile': typeof AppProfileRoute
   '/report': typeof AppReportRoute
 }
@@ -83,22 +75,14 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_app/home': typeof AppHomeRoute
-  '/_app/map': typeof AppMapRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/report': typeof AppReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/login'
-    | '/signup'
-    | '/home'
-    | '/map'
-    | '/profile'
-    | '/report'
+  fullPaths: '/' | '/login' | '/signup' | '/home' | '/profile' | '/report'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/home' | '/map' | '/profile' | '/report'
+  to: '/' | '/login' | '/signup' | '/home' | '/profile' | '/report'
   id:
     | '__root__'
     | '/'
@@ -106,7 +90,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/_app/home'
-    | '/_app/map'
     | '/_app/profile'
     | '/_app/report'
   fileRoutesById: FileRoutesById
@@ -162,13 +145,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/map': {
-      id: '/_app/map'
-      path: '/map'
-      fullPath: '/map'
-      preLoaderRoute: typeof AppMapRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/home': {
       id: '/_app/home'
       path: '/home'
@@ -181,14 +157,12 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppHomeRoute: typeof AppHomeRoute
-  AppMapRoute: typeof AppMapRoute
   AppProfileRoute: typeof AppProfileRoute
   AppReportRoute: typeof AppReportRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppHomeRoute: AppHomeRoute,
-  AppMapRoute: AppMapRoute,
   AppProfileRoute: AppProfileRoute,
   AppReportRoute: AppReportRoute,
 }
