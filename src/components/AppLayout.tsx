@@ -90,10 +90,7 @@ export function AppLayout() {
         </nav>
       </div>
 
-      <main
-        className="flex-1 md:pb-0"
-        style={{ paddingBottom: "calc(5rem + env(safe-area-inset-bottom))" }}
-      >
+      <main className="flex-1 fs-main-pad">
         <ErrorBoundary>
           <AnimatePresence mode="wait" initial={false}>
             <PageTransition key={pathname}>
