@@ -175,3 +175,18 @@
 /* Hide scrollbar utility */
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* Mobile main bottom padding accounting for fixed nav + iOS safe area */
+.fs-main-pad { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+@media (min-width: 768px) {
+  .fs-main-pad { padding-bottom: 0; }
+}
+
+/* Map page sizing: full mobile minus bottom nav, full viewport on tablet+ */
+.fs-map-h {
+  height: calc(100dvh - 5rem - env(safe-area-inset-bottom));
+  min-height: 420px;
+}
+@media (min-width: 768px) {
+  .fs-map-h { height: 100dvh; }
+}

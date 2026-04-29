@@ -4,6 +4,9 @@ import { FlowSpringLogo } from "./FlowSpringLogo";
 import { cn } from "@/lib/utils";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
+import { AnimatePresence } from "framer-motion";
+import { PageTransition } from "./PageTransition";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 const tabs = [
   { to: "/home", label: "Home", icon: Home },
@@ -87,12 +90,21 @@ export function AppLayout() {
         </nav>
       </div>
 
-      <main className="flex-1 pb-20 md:pb-0">
-        <Outlet />
+      <main className="flex-1 fs-main-pad">
+        <ErrorBoundary>
+          <AnimatePresence mode="wait" initial={false}>
+            <PageTransition key={pathname}>
+              <Outlet />
+            </PageTransition>
+          </AnimatePresence>
+        </ErrorBoundary>
       </main>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed bottom-0 inset-x-0 md:hidden bg-background border-t flex justify-around z-50">
+      <nav
+        className="fixed bottom-0 inset-x-0 md:hidden bg-background border-t flex justify-around z-50"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
         {tabs.map(({ to, label, icon: Icon }) => {
           const active = pathname === to;
           return (

@@ -19,6 +19,7 @@ import { useIncidentsRealtime } from "@/hooks/useIncidentsRealtime";
 import { haversineDistance } from "@/lib/haversine";
 import type { Incident } from "@/types";
 import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
+import { EmptyState as SharedEmptyState } from "@/components/EmptyState";
 
 export const Route = createFileRoute("/_app/home")({
   head: () => ({ meta: [{ title: "Home — FlowSpring" }] }),
@@ -132,7 +133,11 @@ function HomePage() {
               ))}
             </div>
           ) : sortedNearby.length === 0 ? (
-            <EmptyState />
+            <SharedEmptyState
+              icon="💧"
+              title="No incidents nearby — that's a good sign!"
+              description="When new reports are filed near you, they'll appear here."
+            />
           ) : (
             <ul className="space-y-3">
               {sortedNearby.map(({ inc, km }) => (
@@ -200,18 +205,6 @@ function StatusBadge({ status }: { status: string }) {
     >
       {status}
     </Badge>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="bg-card border rounded-xl p-8 text-center">
-      <div className="text-4xl mb-2">💧</div>
-      <p className="font-medium text-foreground">No reports yet nearby</p>
-      <p className="text-sm text-muted-foreground mt-1">
-        Be the first to report a water issue in your area.
-      </p>
-    </div>
   );
 }
 

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
 import type { Incident, Profile } from "@/types";
+import { EmptyState } from "@/components/EmptyState";
 
 export const Route = createFileRoute("/_app/profile")({
   head: () => ({ meta: [{ title: "Profile — FlowSpring" }] }),
@@ -203,7 +204,7 @@ function ProfilePage() {
                     <Badge
                       style={{
                         backgroundColor: SEVERITY_COLORS[r.severity] ?? "#999",
-                        color: "#000",
+                        color: r.severity === "Low" ? "#212121" : "#fff",
                       }}
                     >
                       {r.severity}
@@ -222,14 +223,16 @@ function ProfilePage() {
             ))}
           </ul>
         ) : (
-          <Card className="p-6 text-center bg-card">
-            <p className="text-sm text-muted-foreground">
-              You haven't submitted any reports yet.
-            </p>
-            <Button asChild variant="link" className="text-primary">
-              <Link to="/report">Submit your first report</Link>
-            </Button>
-          </Card>
+          <EmptyState
+            icon="📝"
+            title="You haven't submitted any reports yet."
+            description="Help your community by reporting your first water safety incident."
+            action={
+              <Button asChild className="mt-2 bg-primary text-primary-foreground">
+                <Link to="/report">Submit a report</Link>
+              </Button>
+            }
+          />
         )}
       </section>
 
