@@ -17,6 +17,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_app/map")({
   head: () => ({ meta: [{ title: "Map — FlowSpring" }] }),
@@ -98,13 +100,31 @@ function MapPage() {
   }, [selected, geo.latitude, geo.longitude]);
 
   return (
-    <div className="relative h-[calc(100vh-5rem)] md:h-screen w-full overflow-hidden">
+    <div
+      className="relative w-full overflow-hidden"
+      style={{ height: "calc(100dvh - 5rem)", minHeight: 480 }}
+    >
+      {incidents === null && (
+        <Skeleton className="absolute inset-0 z-[10] rounded-none" />
+      )}
       <LeafletMap
         userLat={geo.latitude}
         userLng={geo.longitude}
         incidents={filtered}
         onSelect={setSelected}
       />
+
+      {incidents !== null && filtered.length === 0 && (
+        <div className="absolute inset-x-0 bottom-24 z-[450] flex justify-center px-4 pointer-events-none">
+          <div className="pointer-events-auto max-w-sm w-full">
+            <EmptyState
+              icon="🗺️"
+              title="No incidents to show"
+              description="Try a different filter or check back later."
+            />
+          </div>
+        </div>
+      )}
 
       {/* Filter chip row */}
       <div className="absolute top-0 inset-x-0 z-[400] pointer-events-none">
