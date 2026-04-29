@@ -55,3 +55,19 @@ export function queueOfflineReport(report: OfflineReport) {
   existing.push(report);
   localStorage.setItem(QUEUE_KEY, JSON.stringify(existing));
 }
+
+export function getOfflineQueue(): OfflineReport[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+export function setOfflineQueue(queue: OfflineReport[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+}
+
+export const OFFLINE_QUEUE_KEY = QUEUE_KEY;
