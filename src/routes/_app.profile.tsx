@@ -204,7 +204,7 @@ function ProfilePage() {
                     <Badge
                       style={{
                         backgroundColor: SEVERITY_COLORS[r.severity] ?? "#999",
-                        color: "#000",
+                        color: r.severity === "Low" ? "#212121" : "#fff",
                       }}
                     >
                       {r.severity}
