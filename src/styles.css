@@ -171,3 +171,7 @@
 
 /* Make Leaflet container readable in dark/light */
 .leaflet-container { background: #e6eef2; }
+
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
