@@ -120,7 +120,7 @@ function ProfilePage() {
   if (!authLoading && !user) {
     return (
       <div className="max-w-2xl mx-auto p-4 space-y-4">
-        <Card className="p-6 bg-card-soft text-center space-y-3">
+        <Card className="p-6 bg-card text-center space-y-3">
           <h2 className="text-xl font-semibold text-primary">Create an account to track your reports</h2>
           <p className="text-sm text-muted-foreground">
             Sign up to submit reports, see your impact, and get nearby alerts.
@@ -168,7 +168,7 @@ function ProfilePage() {
           { label: "Verified", value: stats.verified },
           { label: "Resolved", value: stats.resolved },
         ].map((s) => (
-          <Card key={s.label} className="p-3 text-center bg-card-soft">
+          <Card key={s.label} className="p-3 text-center bg-card">
             {loading ? (
               <Skeleton className="h-7 w-10 mx-auto mb-1" />
             ) : (
@@ -191,7 +191,7 @@ function ProfilePage() {
         ) : reports && reports.length > 0 ? (
           <ul className="space-y-2">
             {reports.map((r) => (
-              <Card key={r.id} className="p-3 bg-card-soft">
+              <Card key={r.id} className="p-3 bg-card">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="font-medium truncate">{r.incident_type}</div>
@@ -222,7 +222,7 @@ function ProfilePage() {
             ))}
           </ul>
         ) : (
-          <Card className="p-6 text-center bg-card-soft">
+          <Card className="p-6 text-center bg-card">
             <p className="text-sm text-muted-foreground">
               You haven't submitted any reports yet.
             </p>
@@ -236,7 +236,7 @@ function ProfilePage() {
       {/* Settings */}
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Settings</h2>
-        <Card className="p-4 bg-card-soft divide-y">
+        <Card className="p-4 bg-card divide-y">
           <div className="flex items-center justify-between py-2 min-h-[44px]">
             <Label htmlFor="push-notif" className="font-normal">
               Push Notifications
