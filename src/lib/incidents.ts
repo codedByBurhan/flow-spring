@@ -19,6 +19,17 @@ export const INCIDENT_TYPES = [
   "Other",
 ] as const;
 
+export const QUALITY_PARAMETERS = [
+  "Colour Change",
+  "Unusual Odour",
+  "Visible Foam",
+  "Oil/Chemical Sheen",
+  "Dead Fish or Animals",
+  "Algae Bloom",
+  "Sewage Overflow",
+  "Turbidity (Cloudy Water)",
+] as const;
+
 export function distanceKm(
   lat1: number,
   lon1: number,

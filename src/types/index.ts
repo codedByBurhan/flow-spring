@@ -10,6 +10,8 @@ export interface Incident {
   status: "Pending" | "Verified" | "Resolved" | string;
   created_at: string;
   updated_at: string;
+  quality_parameters?: string[] | null;
+  verify_count?: number;
 }
 
 export interface Profile {
