@@ -8,8 +8,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search) => ({
-    redirect: typeof search.redirect === "string" && search.redirect ? search.redirect : "/home",
+  validateSearch: (search): { redirect?: string } => ({
+    redirect:
+      typeof search.redirect === "string" && search.redirect ? search.redirect : undefined,
   }),
   component: LoginPage,
   head: () => ({ meta: [{ title: "Log In — FlowSpring" }] }),
@@ -32,7 +33,7 @@ function LoginPage() {
       toast.error(error.message);
       return;
     }
-    const redirectTo = search.redirect.startsWith("/") ? search.redirect : "/home";
+    const redirectTo = search.redirect?.startsWith("/") ? search.redirect : "/home";
     await navigate({ to: redirectTo as never });
   };
 
