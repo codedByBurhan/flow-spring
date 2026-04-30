@@ -9,7 +9,6 @@ import { haversineDistance } from "@/lib/haversine";
 import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
 import type { Incident } from "@/types";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
