@@ -187,9 +187,7 @@
 .leaflet-pane.leaflet-popup-pane { z-index: 5 !important; }
 .leaflet-control { z-index: 6 !important; }
 
-/* Lift Radix Dialog/Sheet overlays + content above map UI and bottom nav */
-[data-radix-popper-content-wrapper],
-[data-radix-portal] { z-index: 100 !important; }
+/* Dialog/Sheet overlays already use z-[100]/[101] — sit above Leaflet & nav */
 
 /* Hide scrollbar utility */
 .scrollbar-none::-webkit-scrollbar { display: none; }
