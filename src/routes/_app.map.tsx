@@ -14,6 +14,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
@@ -171,6 +172,9 @@ function MapPage() {
             <>
               <SheetHeader>
                 <SheetTitle>{selected.incident_type}</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Incident details, location, severity, status, and confirmation
+                </SheetDescription>
               </SheetHeader>
               <div className="space-y-3 mt-3">
                 <div className="flex flex-wrap gap-2">

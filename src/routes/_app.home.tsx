@@ -13,6 +13,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useIncidentsRealtime } from "@/hooks/useIncidentsRealtime";
@@ -229,6 +230,9 @@ function IncidentDetail({
               <DialogTitle className="flex items-center gap-2">
                 {incident.incident_type}
               </DialogTitle>
+              <DialogDescription className="sr-only">
+                Incident details, location, severity, status, and confirmation
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-3">
               <div className="flex gap-2">
