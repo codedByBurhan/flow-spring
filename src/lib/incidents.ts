@@ -19,6 +19,17 @@ export const INCIDENT_TYPES = [
   "Other",
 ] as const;
 
+export const QUALITY_PARAMETERS = [
+  "Colour Change",
+  "Unusual Odour",
+  "Visible Foam",
+  "Oil/Chemical Sheen",
+  "Dead Fish or Animals",
+  "Algae Bloom",
+  "Sewage Overflow",
+  "Turbidity (Cloudy Water)",
+] as const;
+
 export function distanceKm(
   lat1: number,
   lon1: number,
@@ -45,6 +56,7 @@ export interface OfflineReport {
   manual_address?: string;
   photo_data_url?: string;
   created_at: string;
+  quality_parameters?: string[];
 }
 
 const QUEUE_KEY = "flowspring_offline_queue";

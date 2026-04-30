@@ -20,6 +20,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import {
   INCIDENT_TYPES,
   SEVERITY_COLORS,
+  QUALITY_PARAMETERS,
   queueOfflineReport,
 } from "@/lib/incidents";
 import { cn } from "@/lib/utils";
@@ -52,6 +53,7 @@ function ReportPage() {
   const [incidentType, setIncidentType] = useState("");
   const [severity, setSeverity] = useState<Severity | "">("");
   const [description, setDescription] = useState("");
+  const [qualityParams, setQualityParams] = useState<string[]>([]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [manualAddress, setManualAddress] = useState("");
@@ -86,6 +88,12 @@ function ReportPage() {
     if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhotoPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const toggleParam = (p: string) => {
+    setQualityParams((prev) =>
+      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p],
+    );
   };
 
   const fileToDataUrl = (file: File) =>
@@ -131,6 +139,7 @@ function ReportPage() {
         manual_address: manualAddress.trim() || undefined,
         photo_data_url,
         created_at: new Date().toISOString(),
+        quality_parameters: qualityParams,
       });
       toast.success("Saved offline — will sync when connected");
       setSubmitting(false);
@@ -159,6 +168,7 @@ function ReportPage() {
         photo_url,
         latitude: geo.latitude ?? 0,
         longitude: geo.longitude ?? 0,
+        quality_parameters: qualityParams,
       });
       if (error) throw error;
 
@@ -166,6 +176,7 @@ function ReportPage() {
       setIncidentType("");
       setSeverity("");
       setDescription("");
+      setQualityParams([]);
       clearPhoto();
       setManualAddress("");
       navigate({ to: "/home" });
@@ -251,6 +262,40 @@ function ReportPage() {
           {errors.severity && (
             <p className="text-sm text-destructive">{errors.severity}</p>
           )}
+        </div>
+
+        {/* Observable indicators */}
+        <div className="space-y-2">
+          <Label>Observable indicators</Label>
+          <p className="text-xs text-muted-foreground">
+            Select all that apply (optional, helps verify water quality).
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {QUALITY_PARAMETERS.map((p) => {
+              const selected = qualityParams.includes(p);
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => toggleParam(p)}
+                  aria-pressed={selected}
+                  className={cn(
+                    "min-h-[44px] px-3 py-2 rounded-full text-xs font-medium border-2 transition-colors text-left",
+                    selected
+                      ? "text-white"
+                      : "bg-background text-foreground hover:bg-accent",
+                  )}
+                  style={
+                    selected
+                      ? { backgroundColor: "#0D9488", borderColor: "#0D9488" }
+                      : { borderColor: "#0D9488", color: "#0D9488" }
+                  }
+                >
+                  {p}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Photo upload */}

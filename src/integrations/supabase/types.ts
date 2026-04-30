@@ -23,10 +23,12 @@ export type Database = {
           latitude: number
           longitude: number
           photo_url: string | null
+          quality_parameters: string[]
           severity: string
           status: string
           updated_at: string
           user_id: string
+          verify_count: number
         }
         Insert: {
           created_at?: string
@@ -36,10 +38,12 @@ export type Database = {
           latitude: number
           longitude: number
           photo_url?: string | null
+          quality_parameters?: string[]
           severity: string
           status?: string
           updated_at?: string
           user_id: string
+          verify_count?: number
         }
         Update: {
           created_at?: string
@@ -49,10 +53,12 @@ export type Database = {
           latitude?: number
           longitude?: number
           photo_url?: string | null
+          quality_parameters?: string[]
           severity?: string
           status?: string
           updated_at?: string
           user_id?: string
+          verify_count?: number
         }
         Relationships: [
           {
@@ -84,6 +90,42 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      verifications: {
+        Row: {
+          created_at: string
+          id: string
+          incident_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          incident_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          incident_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verifications_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

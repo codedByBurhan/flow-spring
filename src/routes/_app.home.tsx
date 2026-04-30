@@ -20,6 +20,8 @@ import { haversineDistance } from "@/lib/haversine";
 import type { Incident } from "@/types";
 import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
 import { EmptyState as SharedEmptyState } from "@/components/EmptyState";
+import { QualityChips } from "@/components/QualityChips";
+import { VerifyButton } from "@/components/VerifyButton";
 
 export const Route = createFileRoute("/_app/home")({
   head: () => ({ meta: [{ title: "Home — FlowSpring" }] }),
@@ -170,6 +172,9 @@ function HomePage() {
                         <StatusBadge status={inc.status} />
                       </div>
                     </div>
+                    {inc.quality_parameters && inc.quality_parameters.length > 0 && (
+                      <QualityChips values={inc.quality_parameters} className="mt-2" />
+                    )}
                   </button>
                 </li>
               ))}
@@ -230,6 +235,7 @@ function IncidentDetail({
                 <SeverityBadge severity={incident.severity} />
                 <StatusBadge status={incident.status} />
               </div>
+              <QualityChips values={incident.quality_parameters} />
               {incident.photo_url && (
                 <img
                   src={incident.photo_url}
@@ -248,6 +254,7 @@ function IncidentDetail({
                   🕒 {formatDistanceToNow(new Date(incident.created_at), { addSuffix: true })}
                 </div>
               </div>
+              <VerifyButton incident={incident} />
             </div>
           </>
         )}
