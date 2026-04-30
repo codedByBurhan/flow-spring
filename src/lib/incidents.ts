@@ -56,6 +56,7 @@ export interface OfflineReport {
   manual_address?: string;
   photo_data_url?: string;
   created_at: string;
+  quality_parameters?: string[];
 }
 
 const QUEUE_KEY = "flowspring_offline_queue";
