@@ -264,6 +264,40 @@ function ReportPage() {
           )}
         </div>
 
+        {/* Observable indicators */}
+        <div className="space-y-2">
+          <Label>Observable indicators</Label>
+          <p className="text-xs text-muted-foreground">
+            Select all that apply (optional, helps verify water quality).
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {QUALITY_PARAMETERS.map((p) => {
+              const selected = qualityParams.includes(p);
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => toggleParam(p)}
+                  aria-pressed={selected}
+                  className={cn(
+                    "min-h-[44px] px-3 py-2 rounded-full text-xs font-medium border-2 transition-colors text-left",
+                    selected
+                      ? "text-white"
+                      : "bg-background text-foreground hover:bg-accent",
+                  )}
+                  style={
+                    selected
+                      ? { backgroundColor: "#0D9488", borderColor: "#0D9488" }
+                      : { borderColor: "#0D9488", color: "#0D9488" }
+                  }
+                >
+                  {p}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Photo upload */}
         <div className="space-y-2">
           <Label>Photo (optional)</Label>
