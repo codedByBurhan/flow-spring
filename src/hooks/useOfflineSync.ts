@@ -18,6 +18,8 @@ export function useOfflineSync() {
   const { user } = useAuth();
   const online = useOnlineStatus();
   const syncing = useRef(false);
+  const userIdRef = useRef<string | null>(null);
+  userIdRef.current = user?.id ?? null;
 
   useEffect(() => {
     if (!user || !online) return;
@@ -27,11 +29,16 @@ export function useOfflineSync() {
     if (queue.length === 0) return;
 
     syncing.current = true;
+    let cancelled = false;
     (async () => {
       const remaining: OfflineReport[] = [];
       let synced = 0;
 
       for (const item of queue) {
+        if (cancelled || !userIdRef.current) {
+          remaining.push(item);
+          continue;
+        }
         try {
           let photo_url: string | null = null;
           if (item.photo_data_url) {
@@ -67,10 +74,13 @@ export function useOfflineSync() {
       }
 
       setOfflineQueue(remaining);
-      if (synced > 0) {
+      if (!cancelled && synced > 0) {
         toast.success(`Synced ${synced} offline report${synced === 1 ? "" : "s"}`);
       }
       syncing.current = false;
     })();
-  }, [user, online]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, online]);
 }

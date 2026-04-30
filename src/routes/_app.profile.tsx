@@ -138,7 +138,7 @@ function ProfilePage() {
   const initials = getInitials(profile?.display_name ?? null, user?.email ?? null);
 
   return (
-    <div className="max-w-2xl mx-auto p-4 pb-24 space-y-6">
+    <div className="max-w-2xl mx-auto p-4 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         {profile?.avatar_url ? (

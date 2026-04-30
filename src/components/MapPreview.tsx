@@ -11,43 +11,76 @@ interface Props {
 
 export function MapPreview({ userLat, userLng, incidents, height = 200 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<unknown>(null);
+  const mapRef = useRef<import("leaflet").Map | null>(null);
+  const userMarkerRef = useRef<import("leaflet").Marker | null>(null);
+  const markersLayerRef = useRef<import("leaflet").LayerGroup | null>(null);
 
+  // Init map once
   useEffect(() => {
     let cancelled = false;
-    let mapInstance: import("leaflet").Map | null = null;
     (async () => {
       const L = (await import("leaflet")).default;
       await import("leaflet/dist/leaflet.css");
-      if (cancelled || !containerRef.current) return;
-
-      const center: [number, number] = userLat != null && userLng != null
-        ? [userLat, userLng]
-        : [20, 0];
-
-      mapInstance = L.map(containerRef.current, {
+      if (cancelled || !containerRef.current || mapRef.current) return;
+      const map = L.map(containerRef.current, {
         zoomControl: false,
         attributionControl: false,
         dragging: false,
         scrollWheelZoom: false,
         doubleClickZoom: false,
         touchZoom: false,
-      }).setView(center, userLat != null ? 13 : 2);
-
+      }).setView([20, 0], 2);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
-      }).addTo(mapInstance);
-
-      if (userLat != null && userLng != null) {
-        const pulseIcon = L.divIcon({
-          className: "",
-          html: `<div class="user-pulse"></div>`,
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
-        });
-        L.marker([userLat, userLng], { icon: pulseIcon }).addTo(mapInstance);
+      }).addTo(map);
+      markersLayerRef.current = L.layerGroup().addTo(map);
+      mapRef.current = map;
+    })();
+    return () => {
+      cancelled = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+        markersLayerRef.current = null;
+        userMarkerRef.current = null;
       }
+    };
+  }, []);
 
+  // Update user marker + recenter
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const L = (await import("leaflet")).default;
+      const map = mapRef.current;
+      if (cancelled || !map) return;
+      if (userLat == null || userLng == null) return;
+      const pulseIcon = L.divIcon({
+        className: "",
+        html: `<div class="user-pulse"></div>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+      });
+      if (userMarkerRef.current) {
+        userMarkerRef.current.setLatLng([userLat, userLng]);
+      } else {
+        userMarkerRef.current = L.marker([userLat, userLng], { icon: pulseIcon }).addTo(map);
+      }
+      map.setView([userLat, userLng], 13, { animate: false });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userLat, userLng]);
+
+  // Update incident markers without rebuilding map
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const L = (await import("leaflet")).default;
+      const layer = markersLayerRef.current;
+      if (cancelled || !layer) return;
+      layer.clearLayers();
       incidents.forEach((inc) => {
         L.circleMarker([inc.latitude, inc.longitude], {
           radius: 8,
@@ -55,18 +88,13 @@ export function MapPreview({ userLat, userLng, incidents, height = 200 }: Props)
           fillColor: SEVERITY_COLORS[inc.severity] || "#888",
           fillOpacity: 0.8,
           weight: 2,
-        }).addTo(mapInstance!);
+        }).addTo(layer);
       });
-
-      mapRef.current = mapInstance;
     })();
-
     return () => {
       cancelled = true;
-      if (mapInstance) mapInstance.remove();
-      mapRef.current = null;
     };
-  }, [userLat, userLng, incidents]);
+  }, [incidents]);
 
   return (
     <div
