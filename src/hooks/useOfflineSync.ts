@@ -54,6 +54,7 @@ export function useOfflineSync() {
             photo_url,
             latitude: item.latitude ?? 0,
             longitude: item.longitude ?? 0,
+            quality_parameters: item.quality_parameters ?? [],
           });
           if (error) {
             remaining.push(item);
