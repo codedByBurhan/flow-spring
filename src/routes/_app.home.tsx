@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Bell, Plus, MapPin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -15,6 +15,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useIncidentsRealtime } from "@/hooks/useIncidentsRealtime";
 import { haversineDistance } from "@/lib/haversine";
@@ -32,6 +39,10 @@ export const Route = createFileRoute("/_app/home")({
 function HomePage() {
   const geo = useGeolocation();
   const [selected, setSelected] = useState<Incident | null>(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<
+    { id: string; title: string; body: string; at: string; incidentId?: string }[]
+  >([]);
   const seenRef = useRef<Set<string>>(new Set());
   const geoRef = useRef(geo);
   geoRef.current = geo;
@@ -40,15 +51,39 @@ function HomePage() {
       if (seenRef.current.has(inc.id)) return;
       seenRef.current.add(inc.id);
       const g = geoRef.current;
-      if (g.latitude == null || g.longitude == null) return;
-      if (inc.severity !== "High" && inc.severity !== "Medium") return;
-      const d = haversineDistance(
-        { latitude: g.latitude, longitude: g.longitude },
-        { latitude: inc.latitude, longitude: inc.longitude },
+      let isNearby = false;
+      if (g.latitude != null && g.longitude != null) {
+        const d = haversineDistance(
+          { latitude: g.latitude, longitude: g.longitude },
+          { latitude: inc.latitude, longitude: inc.longitude },
+        );
+        isNearby = d <= 10;
+      }
+      // Always log to the notification feed
+      setNotifications((prev) =>
+        [
+          {
+            id: inc.id,
+            title: `${inc.severity} · ${inc.incident_type}`,
+            body: isNearby ? "Reported nearby" : "New report submitted",
+            at: inc.created_at,
+            incidentId: inc.id,
+          },
+          ...prev,
+        ].slice(0, 30),
       );
-      if (d <= 10) toast("New incident reported nearby");
+      if (isNearby && (inc.severity === "High" || inc.severity === "Medium")) {
+        toast("New incident reported nearby");
+      }
     },
   });
+
+  // Keep the open detail in sync with realtime updates (verify_count, status)
+  useEffect(() => {
+    if (!selected || !incidents) return;
+    const fresh = incidents.find((i) => i.id === selected.id);
+    if (fresh && fresh !== selected) setSelected(fresh);
+  }, [incidents, selected]);
 
   const sortedNearby = useMemo(() => {
     if (!incidents) return null;
@@ -89,9 +124,18 @@ function HomePage() {
           <button
             type="button"
             aria-label="Notifications"
-            className="h-11 w-11 grid place-items-center rounded-full hover:bg-accent"
+            onClick={() => setNotifOpen(true)}
+            className="relative h-11 w-11 grid place-items-center rounded-full hover:bg-accent"
           >
             <Bell className="h-5 w-5 text-foreground" />
+            {notifications.length > 0 && (
+              <span
+                className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 grid place-items-center rounded-full text-[10px] font-bold text-white"
+                style={{ backgroundColor: "#E53935" }}
+              >
+                {notifications.length > 9 ? "9+" : notifications.length}
+              </span>
+            )}
           </button>
         </div>
       </header>
@@ -185,6 +229,58 @@ function HomePage() {
       </div>
 
       <IncidentDetail incident={selected} onClose={() => setSelected(null)} />
+
+      <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-sm">
+          <SheetHeader>
+            <SheetTitle>Notifications</SheetTitle>
+            <SheetDescription className="sr-only">
+              List of recent incident notifications
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-4 space-y-2 overflow-y-auto max-h-[calc(100vh-8rem)] pr-1">
+            {notifications.length === 0 ? (
+              <SharedEmptyState
+                icon="🔔"
+                title="No notifications yet"
+                description="You'll see new nearby incident alerts here as they're reported."
+              />
+            ) : (
+              notifications.map((n) => {
+                const inc = incidents?.find((i) => i.id === n.incidentId);
+                return (
+                  <button
+                    key={n.id + n.at}
+                    type="button"
+                    onClick={() => {
+                      if (inc) {
+                        setSelected(inc);
+                        setNotifOpen(false);
+                      }
+                    }}
+                    className="w-full text-left bg-card border rounded-lg p-3 hover:bg-accent transition-colors"
+                  >
+                    <div className="text-sm font-medium truncate">{n.title}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{n.body}</div>
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      {formatDistanceToNow(new Date(n.at), { addSuffix: true })}
+                    </div>
+                  </button>
+                );
+              })
+            )}
+            {notifications.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setNotifications([])}
+                className="w-full text-xs text-muted-foreground hover:text-foreground py-2"
+              >
+                Clear all
+              </button>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
