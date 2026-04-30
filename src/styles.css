@@ -207,3 +207,11 @@
 @media (min-width: 768px) {
   .fs-map-h { height: 100dvh; }
 }
+
+/* Pinned submit on Report screen */
+.fs-pinned-submit {
+  bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  .fs-pinned-submit { bottom: 0; }
+}

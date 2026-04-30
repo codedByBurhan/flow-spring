@@ -68,6 +68,13 @@ function MapPage() {
     },
   });
 
+  // Keep the open sheet's incident in sync with realtime updates
+  useEffect(() => {
+    if (!selected || !incidents) return;
+    const fresh = incidents.find((i) => i.id === selected.id);
+    if (fresh && fresh !== selected) setSelected(fresh);
+  }, [incidents, selected]);
+
   const filtered = useMemo(() => {
     if (!incidents) return [];
     if (filter === "all") return incidents;
@@ -117,7 +124,7 @@ function MapPage() {
       />
 
       {incidents !== null && filtered.length === 0 && (
-        <div className="absolute inset-x-0 bottom-24 z-[450] flex justify-center px-4 pointer-events-none">
+        <div className="absolute inset-x-0 bottom-24 z-[20] flex justify-center px-4 pointer-events-none">
           <div className="pointer-events-auto max-w-sm w-full">
             <EmptyState
               icon="🗺️"
@@ -129,7 +136,7 @@ function MapPage() {
       )}
 
       {/* Filter chip row */}
-      <div className="absolute top-0 inset-x-0 z-[400] pointer-events-none">
+      <div className="absolute top-0 inset-x-0 z-[20] pointer-events-none">
         <div className="pointer-events-auto bg-gradient-to-b from-background/95 to-background/0 pt-3 pb-6 px-3">
           <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-1 px-1">
             {FILTERS.map((f) => {
@@ -157,7 +164,7 @@ function MapPage() {
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 z-[400] bg-background/85 backdrop-blur rounded-xl shadow-lg border p-3 text-xs space-y-1.5">
+      <div className="absolute bottom-4 left-4 z-[20] bg-background/85 backdrop-blur rounded-xl shadow-lg border p-3 text-xs space-y-1.5">
         <div className="font-semibold mb-1">Legend</div>
         <LegendRow color="#E53935" label="High" />
         <LegendRow color="#FB8C00" label="Medium" />
