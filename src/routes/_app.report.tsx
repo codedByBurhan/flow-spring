@@ -196,7 +196,11 @@ function ReportPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="flex-1 max-w-2xl w-full mx-auto px-4 py-4 pb-32 space-y-5"
+        className="flex-1 max-w-2xl w-full mx-auto px-4 py-4 space-y-5"
+        style={{
+          paddingBottom:
+            "calc(7rem + env(safe-area-inset-bottom))",
+        }}
       >
         {/* Incident Type */}
         <div className="space-y-2">
@@ -345,8 +349,13 @@ function ReportPage() {
         </div>
       </form>
 
-      {/* Pinned submit */}
-      <div className="fixed bottom-0 inset-x-0 md:left-64 lg:left-64 bg-background border-t p-4 z-20">
+      {/* Pinned submit — sits above the mobile bottom nav */}
+      <div
+        className="fixed inset-x-0 md:left-64 lg:left-64 bg-background border-t p-4 z-40"
+        style={{
+          bottom: "calc(4rem + env(safe-area-inset-bottom))",
+        }}
+      >
         <div className="max-w-2xl mx-auto">
           <Button
             type="button"
