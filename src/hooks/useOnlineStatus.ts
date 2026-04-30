@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 
 export function useOnlineStatus() {
-  const [online, setOnline] = useState(
-    typeof navigator === "undefined" ? true : navigator.onLine,
-  );
+  // Always start as `true` to keep SSR and first client render consistent.
+  // Real status is read after mount to avoid hydration mismatches.
+  const [online, setOnline] = useState(true);
 
   useEffect(() => {
+    if (typeof navigator !== "undefined") {
+      setOnline(navigator.onLine);
+    }
     const up = () => setOnline(true);
     const down = () => setOnline(false);
     window.addEventListener("online", up);
