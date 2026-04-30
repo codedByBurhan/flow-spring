@@ -19,6 +19,8 @@ import {
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
+import { QualityChips } from "@/components/QualityChips";
+import { VerifyButton } from "@/components/VerifyButton";
 
 export const Route = createFileRoute("/_app/map")({
   head: () => ({ meta: [{ title: "Map — FlowSpring" }] }),
@@ -193,6 +195,7 @@ function MapPage() {
                     {selected.status}
                   </Badge>
                 </div>
+                <QualityChips values={selected.quality_parameters} />
                 <div className="text-sm text-muted-foreground space-y-1">
                   {distanceLabel && <div>📍 {distanceLabel}</div>}
                   <div>
@@ -204,12 +207,7 @@ function MapPage() {
                   <div>👤 {reporterName}</div>
                 </div>
                 <p className="text-sm whitespace-pre-wrap">{selected.description}</p>
-                <Button
-                  className="w-full h-12"
-                  style={{ backgroundColor: "#2E7D32", color: "#fff" }}
-                >
-                  View Details
-                </Button>
+                <VerifyButton incident={selected} />
               </div>
             </>
           )}
