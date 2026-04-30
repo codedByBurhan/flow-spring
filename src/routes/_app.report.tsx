@@ -394,13 +394,8 @@ function ReportPage() {
         </div>
       </form>
 
-      {/* Pinned submit — sits above the mobile bottom nav */}
-      <div
-        className="fixed inset-x-0 md:left-64 lg:left-64 bg-background border-t p-4 z-40"
-        style={{
-          bottom: "calc(4rem + env(safe-area-inset-bottom))",
-        }}
-      >
+      {/* Pinned submit — above mobile bottom nav, flush to bottom on tablet/desktop */}
+      <div className="fs-pinned-submit fixed inset-x-0 md:left-64 lg:left-64 bg-background border-t p-4 z-40">
         <div className="max-w-2xl mx-auto">
           <Button
             type="button"
