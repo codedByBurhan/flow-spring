@@ -5,10 +5,25 @@ export const SEVERITY_COLORS: Record<string, string> = {
 };
 
 export const STATUS_COLORS: Record<string, string> = {
-  Pending: "#FB8C00",
+  Submitted: "#9CA3AF",
+  "Under Review": "#3B82F6",
   Verified: "#43A047",
+  "Action in Progress": "#FB8C00",
   Resolved: "#81C784",
 };
+
+export const STAGE_ICON: Record<string, string> = {
+  Submitted: "📝",
+  "Under Review": "🔍",
+  Verified: "✓",
+  "Action in Progress": "🔨",
+  Resolved: "💧",
+};
+
+export function daysSince(iso: string): number {
+  const ms = Date.now() - new Date(iso).getTime();
+  return Math.floor(ms / (1000 * 60 * 60 * 24));
+}
 
 export const INCIDENT_TYPES = [
   "Contaminated Water",

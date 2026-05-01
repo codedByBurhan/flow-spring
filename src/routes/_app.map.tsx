@@ -1,14 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useIncidentsRealtime } from "@/hooks/useIncidentsRealtime";
 import { haversineDistance } from "@/lib/haversine";
-import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
+import { SEVERITY_COLORS } from "@/lib/incidents";
 import type { Incident } from "@/types";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
@@ -19,8 +17,8 @@ import {
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
-import { QualityChips } from "@/components/QualityChips";
-import { VerifyButton } from "@/components/VerifyButton";
+import { IncidentDetailContent } from "@/components/IncidentDetailContent";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/_app/map")({
   head: () => ({ meta: [{ title: "Map — FlowSpring" }] }),
@@ -46,9 +44,11 @@ function pinColor(inc: Incident): string {
 
 function MapPage() {
   const geo = useGeolocation();
+  const { user } = useAuth();
   const [filter, setFilter] = useState<FilterId>("all");
   const [selected, setSelected] = useState<Incident | null>(null);
   const [reporterName, setReporterName] = useState<string>("Anonymous");
+  const [organisation, setOrganisation] = useState<string | null>(null);
   const seenIdsRef = useRef<Set<string>>(new Set());
   const geoRef = useRef(geo);
   geoRef.current = geo;
@@ -98,6 +98,23 @@ function MapPage() {
       cancelled = true;
     };
   }, [selected]);
+
+  // Load current user's organisation for the field-agent update default
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("organisation")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled) setOrganisation((data?.organisation as string | null) ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const distanceLabel = useMemo(() => {
     if (!selected || geo.latitude == null || geo.longitude == null) return null;
@@ -174,7 +191,7 @@ function MapPage() {
 
       {/* Bottom sheet */}
       <Sheet open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
-        <SheetContent side="bottom" className="rounded-t-2xl max-h-[80vh]">
+        <SheetContent side="bottom" className="rounded-t-2xl max-h-[85vh] overflow-y-auto">
           {selected && (
             <>
               <SheetHeader>
@@ -183,41 +200,13 @@ function MapPage() {
                   Incident details, location, severity, status, and confirmation
                 </SheetDescription>
               </SheetHeader>
-              <div className="space-y-3 mt-3">
-                <div className="flex flex-wrap gap-2">
-                  <Badge
-                    style={{
-                      backgroundColor: SEVERITY_COLORS[selected.severity] || "#888",
-                      color: selected.severity === "Low" ? "#333" : "#fff",
-                    }}
-                    className="text-[10px] uppercase tracking-wide"
-                  >
-                    {selected.severity}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    style={{
-                      borderColor: STATUS_COLORS[selected.status] || "#888",
-                      color: STATUS_COLORS[selected.status] || "#888",
-                    }}
-                    className="text-[10px] uppercase tracking-wide bg-transparent"
-                  >
-                    {selected.status}
-                  </Badge>
-                </div>
-                <QualityChips values={selected.quality_parameters} />
-                <div className="text-sm text-muted-foreground space-y-1">
-                  {distanceLabel && <div>📍 {distanceLabel}</div>}
-                  <div>
-                    🕒{" "}
-                    {formatDistanceToNow(new Date(selected.created_at), {
-                      addSuffix: true,
-                    })}
-                  </div>
-                  <div>👤 {reporterName}</div>
-                </div>
-                <p className="text-sm whitespace-pre-wrap">{selected.description}</p>
-                <VerifyButton incident={selected} />
+              <div className="mt-3">
+                <IncidentDetailContent
+                  incident={selected}
+                  reporterName={reporterName}
+                  distanceLabel={distanceLabel}
+                  organisation={organisation}
+                />
               </div>
             </>
           )}

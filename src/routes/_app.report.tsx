@@ -24,6 +24,7 @@ import {
   queueOfflineReport,
 } from "@/lib/incidents";
 import { cn } from "@/lib/utils";
+import { VoiceInputButton } from "@/components/VoiceInputButton";
 
 export const Route = createFileRoute("/_app/report")({
   head: () => ({ meta: [{ title: "Report Incident — FlowSpring" }] }),
@@ -49,6 +50,23 @@ function ReportPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const geo = useGeolocation();
+  const [language, setLanguage] = useState<string>("en-IN");
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("language")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled && data?.language) setLanguage(data.language);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const [incidentType, setIncidentType] = useState("");
   const [severity, setSeverity] = useState<Severity | "">("");
@@ -340,12 +358,22 @@ function ReportPage() {
 
         {/* Description */}
         <div className="space-y-2">
-          <Label htmlFor="description">Description *</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="description">Description *</Label>
+            <VoiceInputButton
+              language={language}
+              onTranscript={(t) =>
+                setDescription((prev) =>
+                  (prev ? prev + " " : "") + t
+                )
+              }
+            />
+          </div>
           <Textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value.slice(0, MAX_DESC))}
-            placeholder="What did you observe?"
+            placeholder="What did you observe? (or tap the mic to speak)"
             rows={4}
             className="resize-none"
           />

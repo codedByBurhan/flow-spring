@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      incident_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          incident_id: string
+          note: string | null
+          responsible_party: string | null
+          status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          incident_id: string
+          note?: string | null
+          responsible_party?: string | null
+          status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          incident_id?: string
+          note?: string | null
+          responsible_party?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_status_history_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incidents: {
         Row: {
           created_at: string
@@ -24,6 +69,7 @@ export type Database = {
           longitude: number
           photo_url: string | null
           quality_parameters: string[]
+          resolution_photo_url: string | null
           severity: string
           status: string
           updated_at: string
@@ -39,6 +85,7 @@ export type Database = {
           longitude: number
           photo_url?: string | null
           quality_parameters?: string[]
+          resolution_photo_url?: string | null
           severity: string
           status?: string
           updated_at?: string
@@ -54,6 +101,7 @@ export type Database = {
           longitude?: number
           photo_url?: string | null
           quality_parameters?: string[]
+          resolution_photo_url?: string | null
           severity?: string
           status?: string
           updated_at?: string
@@ -70,26 +118,148 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          incident_id: string | null
+          message: string
+          read: boolean
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          incident_id?: string | null
+          message: string
+          read?: boolean
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          incident_id?: string | null
+          message?: string
+          read?: boolean
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           display_name: string
           id: string
+          language: string
+          organisation: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string
           id: string
+          language?: string
+          organisation?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string
           id?: string
+          language?: string
+          organisation?: string | null
         }
         Relationships: []
+      }
+      resolution_feedback: {
+        Row: {
+          confirmed: boolean
+          created_at: string
+          id: string
+          incident_id: string
+          user_id: string
+        }
+        Insert: {
+          confirmed: boolean
+          created_at?: string
+          id?: string
+          incident_id: string
+          user_id: string
+        }
+        Update: {
+          confirmed?: boolean
+          created_at?: string
+          id?: string
+          incident_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resolution_feedback_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resolution_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       verifications: {
         Row: {
@@ -132,10 +302,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_any_role: {
+        Args: {
+          _roles: Database["public"]["Enums"]["app_role"][]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "field_agent" | "ngo_partner" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -262,6 +445,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "field_agent", "ngo_partner", "admin"],
+    },
   },
 } as const
