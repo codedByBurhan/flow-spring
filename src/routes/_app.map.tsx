@@ -1,14 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useIncidentsRealtime } from "@/hooks/useIncidentsRealtime";
 import { haversineDistance } from "@/lib/haversine";
-import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
+import { SEVERITY_COLORS } from "@/lib/incidents";
 import type { Incident } from "@/types";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
