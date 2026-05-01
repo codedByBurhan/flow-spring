@@ -25,7 +25,6 @@ import {
 } from "@/lib/incidents";
 import { cn } from "@/lib/utils";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_app/report")({
   head: () => ({ meta: [{ title: "Report Incident — FlowSpring" }] }),
