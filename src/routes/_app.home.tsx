@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bell, Plus, MapPin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { toast } from "sonner";
 import { FlowSpringLogo } from "@/components/FlowSpringLogo";
 import { MapPreview } from "@/components/MapPreview";
 import { Button } from "@/components/ui/button";
@@ -29,7 +28,11 @@ import type { Incident } from "@/types";
 import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
 import { EmptyState as SharedEmptyState } from "@/components/EmptyState";
 import { QualityChips } from "@/components/QualityChips";
-import { VerifyButton } from "@/components/VerifyButton";
+import { IncidentDetailContent } from "@/components/IncidentDetailContent";
+import { EscalationPill } from "@/components/EscalationPill";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_app/home")({
   head: () => ({ meta: [{ title: "Home — FlowSpring" }] }),
@@ -38,45 +41,61 @@ export const Route = createFileRoute("/_app/home")({
 
 function HomePage() {
   const geo = useGeolocation();
+  const { user } = useAuth();
   const [selected, setSelected] = useState<Incident | null>(null);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<
-    { id: string; title: string; body: string; at: string; incidentId?: string }[]
-  >([]);
-  const seenRef = useRef<Set<string>>(new Set());
-  const geoRef = useRef(geo);
-  geoRef.current = geo;
-  const { incidents } = useIncidentsRealtime({
-    onInsert: (inc) => {
-      if (seenRef.current.has(inc.id)) return;
-      seenRef.current.add(inc.id);
-      const g = geoRef.current;
-      let isNearby = false;
-      if (g.latitude != null && g.longitude != null) {
-        const d = haversineDistance(
-          { latitude: g.latitude, longitude: g.longitude },
-          { latitude: inc.latitude, longitude: inc.longitude },
-        );
-        isNearby = d <= 10;
-      }
-      // Always log to the notification feed
-      setNotifications((prev) =>
-        [
-          {
-            id: inc.id,
-            title: `${inc.severity} · ${inc.incident_type}`,
-            body: isNearby ? "Reported nearby" : "New report submitted",
-            at: inc.created_at,
-            incidentId: inc.id,
-          },
-          ...prev,
-        ].slice(0, 30),
-      );
-      if (isNearby && (inc.severity === "High" || inc.severity === "Medium")) {
-        toast("New incident reported nearby");
-      }
-    },
-  });
+  const { incidents } = useIncidentsRealtime();
+  const {
+    notifications,
+    unreadCount,
+    markRead,
+    markAllRead,
+    clearAll,
+  } = useNotifications();
+  const [reporterName, setReporterName] = useState<string | null>(null);
+  const [organisation, setOrganisation] = useState<string | null>(null);
+
+  // Mark all read when bell opens
+  useEffect(() => {
+    if (notifOpen && unreadCount > 0) void markAllRead();
+  }, [notifOpen, unreadCount, markAllRead]);
+
+  // Load current user's organisation (for the Update Status default)
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("organisation")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled) setOrganisation((data?.organisation as string | null) ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  // Load reporter name when an incident is selected
+  useEffect(() => {
+    if (!selected) {
+      setReporterName(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", selected.user_id)
+        .maybeSingle();
+      if (!cancelled) setReporterName(data?.display_name?.trim() || "Anonymous");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selected]);
 
   // Keep the open detail in sync with realtime updates (verify_count, status)
   useEffect(() => {
@@ -128,12 +147,12 @@ function HomePage() {
             className="relative h-11 w-11 grid place-items-center rounded-full hover:bg-accent"
           >
             <Bell className="h-5 w-5 text-foreground" />
-            {notifications.length > 0 && (
+            {unreadCount > 0 && (
               <span
                 className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 grid place-items-center rounded-full text-[10px] font-bold text-white"
                 style={{ backgroundColor: "#E53935" }}
               >
-                {notifications.length > 9 ? "9+" : notifications.length}
+                {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
           </button>
@@ -215,6 +234,7 @@ function HomePage() {
                       <div className="flex flex-col items-end gap-1 shrink-0">
                         <SeverityBadge severity={inc.severity} />
                         <StatusBadge status={inc.status} />
+                        <EscalationPill createdAt={inc.created_at} status={inc.status} />
                       </div>
                     </div>
                     {inc.quality_parameters && inc.quality_parameters.length > 0 && (
@@ -228,14 +248,19 @@ function HomePage() {
         </section>
       </div>
 
-      <IncidentDetail incident={selected} onClose={() => setSelected(null)} />
+      <IncidentDetail
+        incident={selected}
+        reporterName={reporterName}
+        organisation={organisation}
+        onClose={() => setSelected(null)}
+      />
 
       <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
         <SheetContent side="right" className="w-full sm:max-w-sm">
           <SheetHeader>
             <SheetTitle>Notifications</SheetTitle>
             <SheetDescription className="sr-only">
-              List of recent incident notifications
+              Status updates and alerts on your reports
             </SheetDescription>
           </SheetHeader>
           <div className="mt-4 space-y-2 overflow-y-auto max-h-[calc(100vh-8rem)] pr-1">
@@ -243,28 +268,42 @@ function HomePage() {
               <SharedEmptyState
                 icon="🔔"
                 title="No notifications yet"
-                description="You'll see new nearby incident alerts here as they're reported."
+                description="You'll see status updates on your reports here."
               />
             ) : (
               notifications.map((n) => {
-                const inc = incidents?.find((i) => i.id === n.incidentId);
+                const inc = incidents?.find((i) => i.id === n.incident_id);
                 return (
                   <button
-                    key={n.id + n.at}
+                    key={n.id}
                     type="button"
                     onClick={() => {
+                      void markRead(n.id);
                       if (inc) {
                         setSelected(inc);
                         setNotifOpen(false);
                       }
                     }}
-                    className="w-full text-left bg-card border rounded-lg p-3 hover:bg-accent transition-colors"
+                    className={
+                      "w-full text-left border rounded-lg p-3 hover:bg-accent transition-colors flex gap-3 " +
+                      (n.read ? "bg-card" : "bg-primary/5 border-primary/20")
+                    }
                   >
-                    <div className="text-sm font-medium truncate">{n.title}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{n.body}</div>
-                    <div className="text-[10px] text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(n.at), { addSuffix: true })}
+                    <div className="text-xl shrink-0" aria-hidden>
+                      {n.icon ?? "🔔"}
                     </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium">{n.message}</div>
+                      <div className="text-[10px] text-muted-foreground mt-1">
+                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                      </div>
+                    </div>
+                    {!n.read && (
+                      <span
+                        className="h-2 w-2 rounded-full bg-primary mt-1.5 shrink-0"
+                        aria-label="Unread"
+                      />
+                    )}
                   </button>
                 );
               })
@@ -272,7 +311,7 @@ function HomePage() {
             {notifications.length > 0 && (
               <button
                 type="button"
-                onClick={() => setNotifications([])}
+                onClick={() => void clearAll()}
                 className="w-full text-xs text-muted-foreground hover:text-foreground py-2"
               >
                 Clear all
@@ -312,14 +351,18 @@ function StatusBadge({ status }: { status: string }) {
 
 function IncidentDetail({
   incident,
+  reporterName,
+  organisation,
   onClose,
 }: {
   incident: Incident | null;
+  reporterName: string | null;
+  organisation: string | null;
   onClose: () => void;
 }) {
   return (
     <Dialog open={!!incident} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         {incident && (
           <>
             <DialogHeader>
@@ -330,32 +373,11 @@ function IncidentDetail({
                 Incident details, location, severity, status, and confirmation
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <SeverityBadge severity={incident.severity} />
-                <StatusBadge status={incident.status} />
-              </div>
-              <QualityChips values={incident.quality_parameters} />
-              {incident.photo_url && (
-                <img
-                  src={incident.photo_url}
-                  alt="Incident"
-                  className="w-full rounded-lg max-h-64 object-cover"
-                />
-              )}
-              <p className="text-sm text-foreground whitespace-pre-wrap">
-                {incident.description}
-              </p>
-              <div className="text-xs text-muted-foreground space-y-1">
-                <div>
-                  📍 {incident.latitude.toFixed(5)}, {incident.longitude.toFixed(5)}
-                </div>
-                <div>
-                  🕒 {formatDistanceToNow(new Date(incident.created_at), { addSuffix: true })}
-                </div>
-              </div>
-              <VerifyButton incident={incident} />
-            </div>
+            <IncidentDetailContent
+              incident={incident}
+              reporterName={reporterName}
+              organisation={organisation}
+            />
           </>
         )}
       </DialogContent>
