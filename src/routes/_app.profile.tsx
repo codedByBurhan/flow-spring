@@ -77,6 +77,18 @@ function ProfilePage() {
       }
       return merged;
     });
+    // Persist language to profile for voice input
+    if (next.language && user) {
+      const langMap: Record<string, string> = {
+        en: "en-IN",
+        hi: "hi-IN",
+        te: "te-IN",
+      };
+      void supabase
+        .from("profiles")
+        .update({ language: langMap[next.language] ?? "en-IN" })
+        .eq("id", user.id);
+    }
   };
 
   useEffect(() => {
