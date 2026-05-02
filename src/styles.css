@@ -215,3 +215,114 @@
 @media (min-width: 768px) {
   .fs-pinned-submit { bottom: 0; }
 }
+
+/* =========================================================================
+ * FlowSpring brand tokens (raw hex, used inline alongside semantic tokens)
+ * ========================================================================= */
+:root {
+  --fs-primary: #2E7D32;
+  --fs-primary-light: #43A047;
+  --fs-primary-surface: #F1F8E9;
+  --fs-danger: #E53935;
+  --fs-danger-surface: #FFEBEE;
+  --fs-warning: #FB8C00;
+  --fs-warning-surface: #FFF3E0;
+  --fs-low: #FDD835;
+  --fs-low-surface: #FFFDE7;
+  --fs-resolved: #81C784;
+  --fs-neutral-900: #111827;
+  --fs-neutral-700: #374151;
+  --fs-neutral-500: #6B7280;
+  --fs-neutral-300: #D1D5DB;
+  --fs-neutral-100: #F3F4F6;
+  --fs-neutral-50: #F9FAFB;
+  --fs-card: #F9FBE7;
+  --fs-surface: #F5F5F5;
+
+  --fs-shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
+  --fs-shadow-elevated: 0 4px 16px rgba(0,0,0,0.12);
+  --fs-shadow-sheet: 0 -4px 24px rgba(0,0,0,0.12);
+  --fs-shadow-button: 0 2px 8px rgba(46,125,50,0.25);
+}
+
+/* Focus ring – consistent across the app */
+*:focus-visible {
+  outline: 2px solid var(--fs-primary) !important;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+button:focus, a:focus { outline: none; }
+
+/* Card shadow utility */
+.fs-shadow-card { box-shadow: var(--fs-shadow-card); }
+.fs-shadow-elevated { box-shadow: var(--fs-shadow-elevated); }
+.fs-shadow-button { box-shadow: var(--fs-shadow-button); }
+
+/* Press scale interaction for buttons and tappable cards */
+.fs-press {
+  transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+}
+.fs-press:active { transform: scale(0.97); }
+
+/* Skeleton shimmer — overrides ui/skeleton’s pulse with a richer gradient */
+@keyframes fs-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.fs-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: fs-shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Apply shimmer to all shadcn skeletons globally */
+.animate-pulse {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%) !important;
+  background-size: 200% 100% !important;
+  animation: fs-shimmer 1.4s ease-in-out infinite !important;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .user-pulse { animation: none !important; box-shadow: none !important; }
+}
+
+/* SDG 6 pill */
+.fs-sdg-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  background: #E8F5E9; color: #2E7D32;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+/* Bottom nav FAB raise */
+.fs-fab-raise {
+  transform: translateY(-14px);
+  box-shadow: 0 6px 16px rgba(46,125,50,0.45);
+}
+
+/* Splash logo entrance + ripple */
+@keyframes fs-spring-in {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.fs-spring-in { animation: fs-spring-in 600ms cubic-bezier(0.34,1.56,0.64,1) both; }
+.fs-fade-up   { animation: fs-fade-up 500ms ease-out both; }
+@keyframes fs-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Toast: rounded with brand tint */
+[data-sonner-toaster] [data-sonner-toast] {
+  border-radius: 12px !important;
+  font-size: 14px !important;
+}
