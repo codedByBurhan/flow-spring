@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Home, PlusCircle, MapPin, User } from "lucide-react";
+import { Home, Plus, MapPin, User } from "lucide-react";
 import { FlowSpringLogo } from "./FlowSpringLogo";
 import { cn } from "@/lib/utils";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -10,7 +10,6 @@ import { ErrorBoundary } from "./ErrorBoundary";
 
 const tabs = [
   { to: "/home", label: "Home", icon: Home },
-  { to: "/report", label: "Report", icon: PlusCircle },
   { to: "/map", label: "Map", icon: MapPin },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;
@@ -102,26 +101,90 @@ export function AppLayout() {
 
       {/* Mobile bottom nav */}
       <nav
-        className="fixed bottom-0 inset-x-0 md:hidden bg-background border-t flex justify-around z-50"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        className="fixed bottom-0 inset-x-0 md:hidden bg-white flex justify-around items-end z-50"
+        style={{
+          paddingBottom: "env(safe-area-inset-bottom)",
+          borderTop: "1px solid #F3F4F6",
+          height: "calc(64px + env(safe-area-inset-bottom))",
+        }}
+        aria-label="Primary"
       >
-        {tabs.map(({ to, label, icon: Icon }) => {
-          const active = pathname === to;
-          return (
-            <Link
-              key={to}
-              to={to}
-              className={cn(
-                "flex flex-col items-center gap-1 py-2 px-3 flex-1 text-xs transition-colors",
-                active ? "text-primary" : "text-muted-foreground",
-              )}
-            >
-              <Icon className={cn("h-6 w-6", active && "stroke-[2.5]")} />
-              {label}
-            </Link>
-          );
-        })}
+        {/* Home */}
+        <BottomTab to="/home" label="Home" Icon={Home} active={pathname === "/home"} />
+        {/* FAB Report */}
+        <Link
+          to="/report"
+          aria-label="Report Incident"
+          className="flex flex-col items-center justify-center fs-press"
+          style={{ flex: 1 }}
+        >
+          <span
+            className="fs-fab-raise grid place-items-center rounded-full"
+            style={{
+              width: 56,
+              height: 56,
+              backgroundColor: "#2E7D32",
+              color: "#fff",
+              border: "3px solid #fff",
+            }}
+          >
+            <Plus className="h-7 w-7" strokeWidth={2.5} />
+          </span>
+          <span
+            className="text-[11px] font-semibold mt-0.5"
+            style={{ color: pathname === "/report" ? "#2E7D32" : "#9CA3AF" }}
+          >
+            Report
+          </span>
+        </Link>
+        <BottomTab to="/map" label="Map" Icon={MapPin} active={pathname === "/map"} />
+        <BottomTab to="/profile" label="Profile" Icon={User} active={pathname === "/profile"} />
       </nav>
     </div>
+  );
+}
+
+function BottomTab({
+  to,
+  label,
+  Icon,
+  active,
+}: {
+  to: "/home" | "/map" | "/profile";
+  label: string;
+  Icon: typeof Home;
+  active: boolean;
+}) {
+  return (
+    <Link
+      to={to}
+      aria-label={label}
+      className="flex flex-col items-center justify-center gap-0.5 py-2 fs-press relative"
+      style={{ flex: 1, minHeight: 56 }}
+    >
+      {active && (
+        <span
+          className="absolute"
+          style={{
+            top: 4,
+            width: 16,
+            height: 3,
+            borderRadius: 999,
+            backgroundColor: "#2E7D32",
+          }}
+          aria-hidden
+        />
+      )}
+      <Icon
+        className={cn("h-6 w-6", active && "stroke-[2.5]")}
+        style={{ color: active ? "#2E7D32" : "#9CA3AF" }}
+      />
+      <span
+        className="text-[11px]"
+        style={{ color: active ? "#2E7D32" : "#9CA3AF", fontWeight: active ? 600 : 500 }}
+      >
+        {label}
+      </span>
+    </Link>
   );
 }

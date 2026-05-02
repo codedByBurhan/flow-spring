@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { ArrowLeft, Camera, Loader2, MapPin, X } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -8,13 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import {
@@ -25,6 +18,15 @@ import {
 } from "@/lib/incidents";
 import { cn } from "@/lib/utils";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
+
+const TYPE_ICONS: Record<string, string> = {
+  "Contaminated Water": "💧",
+  "Broken Pipe": "🚰",
+  "Dry Tap": "❌",
+  "Sewage Overflow": "🚫",
+  "Chemical Smell": "☣️",
+  Other: "❓",
+};
 
 export const Route = createFileRoute("/_app/report")({
   head: () => ({ meta: [{ title: "Report Incident — FlowSpring" }] }),
@@ -207,9 +209,20 @@ function ReportPage() {
 
   const haveGps = geo.latitude != null && geo.longitude != null;
 
+  // Form completion percentage for header progress bar
+  const completion = useMemo(() => {
+    let done = 0;
+    const total = 4;
+    if (incidentType) done++;
+    if (severity) done++;
+    if (description.trim().length > 0) done++;
+    if (haveGps || manualAddress.trim().length > 0) done++;
+    return Math.round((done / total) * 100);
+  }, [incidentType, severity, description, manualAddress, haveGps]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b">
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur" style={{ borderBottom: "1px solid #F3F4F6" }}>
         <div className="flex items-center gap-2 px-4 py-3 max-w-2xl mx-auto">
           <button
             type="button"
@@ -219,7 +232,21 @@ function ReportPage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-lg font-semibold">Report Incident</h1>
+          <h1 className="text-base font-semibold flex-1 text-center" style={{ color: "#111827" }}>
+            Report Incident
+          </h1>
+          <div className="w-11" aria-hidden />
+        </div>
+        <div className="h-1 w-full bg-[#F3F4F6]">
+          <div
+            className="h-full"
+            style={{
+              width: `${completion}%`,
+              backgroundColor: "#2E7D32",
+              transition: "width 250ms ease",
+            }}
+            aria-hidden
+          />
         </div>
       </header>
 
@@ -231,23 +258,50 @@ function ReportPage() {
             "calc(7rem + env(safe-area-inset-bottom))",
         }}
       >
-        {/* Incident Type */}
+        {/* Incident Type — large icon grid */}
         <div className="space-y-2">
-          <Label htmlFor="incident-type">Incident type *</Label>
-          <Select value={incidentType} onValueChange={setIncidentType}>
-            <SelectTrigger id="incident-type" className="h-12">
-              <SelectValue placeholder="Select an incident type" />
-            </SelectTrigger>
-            <SelectContent>
-              {INCIDENT_TYPES.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {t}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label
+            className="block"
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.8px",
+              textTransform: "uppercase",
+              color: "#6B7280",
+            }}
+          >
+            What's the problem?
+          </Label>
+          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Incident type">
+            {INCIDENT_TYPES.map((t) => {
+              const selected = incidentType === t;
+              return (
+                <button
+                  key={t}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setIncidentType(t)}
+                  className="rounded-2xl px-3 py-3 fs-press flex flex-col items-center justify-center gap-1 text-center min-h-[80px]"
+                  style={{
+                    backgroundColor: selected ? "#F1F8E9" : "#fff",
+                    border: selected ? "2px solid #2E7D32" : "1px solid #F3F4F6",
+                    boxShadow: selected ? "0 2px 8px rgba(46,125,50,0.15)" : "var(--fs-shadow-card)",
+                  }}
+                >
+                  <span className="text-2xl" aria-hidden>{TYPE_ICONS[t] ?? "❓"}</span>
+                  <span
+                    className="text-[12px] font-semibold leading-tight"
+                    style={{ color: selected ? "#2E7D32" : "#374151" }}
+                  >
+                    {t}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
           {errors.incident_type && (
-            <p className="text-sm text-destructive">{errors.incident_type}</p>
+            <p className="text-sm" style={{ color: "#E53935" }}>{errors.incident_type}</p>
           )}
         </div>
 

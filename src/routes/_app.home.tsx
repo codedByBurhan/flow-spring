@@ -160,8 +160,14 @@ function HomePage() {
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
+        {/* District safety score */}
+        <SafetyScoreCard incidents={incidents} />
+
         {/* Map card */}
-        <div className="relative rounded-xl overflow-hidden border bg-card shadow-sm">
+        <div
+          className="relative rounded-2xl overflow-hidden bg-white fs-shadow-card"
+          style={{ border: "1px solid #F3F4F6" }}
+        >
           {incidents === null ? (
             <Skeleton className="w-full" style={{ height: 200 }} />
           ) : (
@@ -172,18 +178,35 @@ function HomePage() {
             />
           )}
           {incidents && (
-            <div className="absolute top-3 right-3 bg-background/90 backdrop-blur rounded-full px-3 py-1 text-xs font-medium shadow border">
+            <div
+              className="absolute top-2 right-2 rounded-full px-3 py-1 fs-shadow-card"
+              style={{
+                background: "#fff",
+                color: "#2E7D32",
+                fontWeight: 700,
+                fontSize: 11,
+              }}
+            >
               {nearbyCount} incidents near you
             </div>
           )}
+          {/* Bottom blend gradient */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0"
+            style={{
+              height: 40,
+              background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.95))",
+            }}
+          />
         </div>
 
         {/* CTA */}
         <Link to="/report" className="block">
           <Button
             type="button"
-            className="w-full h-14 text-base font-semibold gap-2"
-            style={{ backgroundColor: "#2E7D32", color: "#fff" }}
+            className="w-full h-14 text-base font-bold gap-2 fs-press fs-shadow-button"
+            style={{ backgroundColor: "#2E7D32", color: "#fff", borderRadius: 12 }}
           >
             <Plus className="h-5 w-5" /> Report an Incident
           </Button>
@@ -191,7 +214,18 @@ function HomePage() {
 
         {/* Recent */}
         <section>
-          <h2 className="text-lg font-semibold mb-3">Recent near you</h2>
+          <h2
+            className="mb-3"
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.8px",
+              textTransform: "uppercase",
+              color: "#6B7280",
+            }}
+          >
+            Recent near you
+          </h2>
           {sortedNearby === null ? (
             <div className="space-y-3">
               {[0, 1, 2].map((i) => (
@@ -211,8 +245,19 @@ function HomePage() {
                   <button
                     type="button"
                     onClick={() => setSelected(inc)}
-                    className="w-full text-left bg-card border rounded-xl p-4 min-h-[44px] hover:shadow-md transition-shadow"
+                    className="w-full text-left bg-white rounded-2xl p-4 min-h-[44px] fs-shadow-card fs-press relative overflow-hidden"
+                    style={{ border: "1px solid #F3F4F6" }}
                   >
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-0 bottom-0"
+                      style={{
+                        width: 4,
+                        backgroundColor: SEVERITY_COLORS[inc.severity] || "#888",
+                        borderTopLeftRadius: 16,
+                        borderBottomLeftRadius: 16,
+                      }}
+                    />
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="font-medium text-foreground truncate">
@@ -346,6 +391,86 @@ function StatusBadge({ status }: { status: string }) {
     >
       {status}
     </Badge>
+  );
+}
+
+function SafetyScoreCard({ incidents }: { incidents: Incident[] | null }) {
+  if (incidents === null) {
+    return <Skeleton className="h-24 w-full rounded-2xl" />;
+  }
+  // Score: 100 - weighted by recent (≤30d) unresolved counts.
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const recent = incidents.filter((i) => new Date(i.created_at).getTime() >= cutoff);
+  const unresolved = recent.filter((i) => i.status !== "Resolved");
+  const weight = unresolved.reduce(
+    (a, i) => a + (i.severity === "High" ? 6 : i.severity === "Medium" ? 3 : 1),
+    0,
+  );
+  const score = Math.max(0, Math.min(100, 100 - weight * 4));
+  const color = score >= 71 ? "#43A047" : score >= 41 ? "#FB8C00" : "#E53935";
+  const label = score >= 71 ? "Good" : score >= 41 ? "Caution" : "Action needed";
+
+  // SVG ring math
+  const r = 26;
+  const c = 2 * Math.PI * r;
+  const dash = (score / 100) * c;
+
+  return (
+    <div
+      className="relative bg-white rounded-2xl p-4 fs-shadow-card flex items-center gap-4 overflow-hidden"
+      style={{ border: "1px solid #F3F4F6" }}
+      role="region"
+      aria-label="District water safety score"
+    >
+      <svg width={64} height={64} viewBox="0 0 64 64" aria-hidden>
+        <circle cx={32} cy={32} r={r} stroke="#F3F4F6" strokeWidth={6} fill="none" />
+        <circle
+          cx={32}
+          cy={32}
+          r={r}
+          stroke={color}
+          strokeWidth={6}
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${c}`}
+          transform="rotate(-90 32 32)"
+          style={{ transition: "stroke-dasharray 600ms ease" }}
+        />
+        <text
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dominantBaseline="central"
+          style={{ fontSize: 16, fontWeight: 700, fill: "#111827" }}
+        >
+          {score}
+        </text>
+      </svg>
+      <div className="flex-1 min-w-0">
+        <div style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>
+          District Water Safety
+        </div>
+        <div className="text-xs mt-0.5" style={{ color: "#6B7280" }}>
+          Based on {recent.length} report{recent.length === 1 ? "" : "s"} · last 30 days
+        </div>
+        <div
+          className="mt-1 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider"
+          style={{ color }}
+        >
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: color }}
+            aria-hidden
+          />
+          {label}
+        </div>
+      </div>
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0"
+        style={{ height: 4, backgroundColor: color }}
+      />
+    </div>
   );
 }
 
