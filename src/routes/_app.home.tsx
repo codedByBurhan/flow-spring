@@ -160,8 +160,14 @@ function HomePage() {
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
+        {/* District safety score */}
+        <SafetyScoreCard incidents={incidents} />
+
         {/* Map card */}
-        <div className="relative rounded-xl overflow-hidden border bg-card shadow-sm">
+        <div
+          className="relative rounded-2xl overflow-hidden bg-white fs-shadow-card"
+          style={{ border: "1px solid #F3F4F6" }}
+        >
           {incidents === null ? (
             <Skeleton className="w-full" style={{ height: 200 }} />
           ) : (
@@ -172,18 +178,35 @@ function HomePage() {
             />
           )}
           {incidents && (
-            <div className="absolute top-3 right-3 bg-background/90 backdrop-blur rounded-full px-3 py-1 text-xs font-medium shadow border">
+            <div
+              className="absolute top-2 right-2 rounded-full px-3 py-1 fs-shadow-card"
+              style={{
+                background: "#fff",
+                color: "#2E7D32",
+                fontWeight: 700,
+                fontSize: 11,
+              }}
+            >
               {nearbyCount} incidents near you
             </div>
           )}
+          {/* Bottom blend gradient */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0"
+            style={{
+              height: 40,
+              background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.95))",
+            }}
+          />
         </div>
 
         {/* CTA */}
         <Link to="/report" className="block">
           <Button
             type="button"
-            className="w-full h-14 text-base font-semibold gap-2"
-            style={{ backgroundColor: "#2E7D32", color: "#fff" }}
+            className="w-full h-14 text-base font-bold gap-2 fs-press fs-shadow-button"
+            style={{ backgroundColor: "#2E7D32", color: "#fff", borderRadius: 12 }}
           >
             <Plus className="h-5 w-5" /> Report an Incident
           </Button>
@@ -191,7 +214,18 @@ function HomePage() {
 
         {/* Recent */}
         <section>
-          <h2 className="text-lg font-semibold mb-3">Recent near you</h2>
+          <h2
+            className="mb-3"
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.8px",
+              textTransform: "uppercase",
+              color: "#6B7280",
+            }}
+          >
+            Recent near you
+          </h2>
           {sortedNearby === null ? (
             <div className="space-y-3">
               {[0, 1, 2].map((i) => (
@@ -211,8 +245,19 @@ function HomePage() {
                   <button
                     type="button"
                     onClick={() => setSelected(inc)}
-                    className="w-full text-left bg-card border rounded-xl p-4 min-h-[44px] hover:shadow-md transition-shadow"
+                    className="w-full text-left bg-white rounded-2xl p-4 min-h-[44px] fs-shadow-card fs-press relative overflow-hidden"
+                    style={{ border: "1px solid #F3F4F6" }}
                   >
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-0 bottom-0"
+                      style={{
+                        width: 4,
+                        backgroundColor: SEVERITY_COLORS[inc.severity] || "#888",
+                        borderTopLeftRadius: 16,
+                        borderBottomLeftRadius: 16,
+                      }}
+                    />
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="font-medium text-foreground truncate">
