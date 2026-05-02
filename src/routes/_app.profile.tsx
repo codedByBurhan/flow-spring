@@ -21,6 +21,7 @@ import {
 import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
 import type { Incident, Profile } from "@/types";
 import { EmptyState } from "@/components/EmptyState";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 export const Route = createFileRoute("/_app/profile")({
   head: () => ({ meta: [{ title: "Profile — FlowSpring" }] }),
@@ -50,6 +51,7 @@ const DEFAULT_SETTINGS: SettingsState = {
 function ProfilePage() {
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { roles } = useUserRoles();
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [reports, setReports] = useState<Incident[] | null>(null);
@@ -148,31 +150,77 @@ function ProfilePage() {
 
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "User";
   const initials = getInitials(profile?.display_name ?? null, user?.email ?? null);
+  const roleLabel =
+    roles.includes("admin")
+      ? "Admin"
+      : roles.includes("ngo_partner")
+        ? "NGO Partner"
+        : roles.includes("field_agent")
+          ? "Field Agent"
+          : null;
 
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        {profile?.avatar_url ? (
-          <img
-            src={profile.avatar_url}
-            alt={displayName}
-            className="h-16 w-16 rounded-full object-cover border-2 border-primary"
-          />
-        ) : (
-          <div
-            className="h-16 w-16 rounded-full grid place-items-center text-white text-xl font-bold"
-            style={{ backgroundColor: "#2E7D32" }}
-            aria-label={`Avatar for ${displayName}`}
-          >
-            {initials}
-          </div>
-        )}
-        <div className="min-w-0">
-          <h1 className="text-xl font-bold truncate">{displayName}</h1>
-          <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+    <div className="max-w-2xl mx-auto pb-6">
+      {/* Gradient banner */}
+      <div className="relative">
+        <div
+          style={{
+            height: 120,
+            background: "linear-gradient(135deg, #2E7D32 0%, #43A047 100%)",
+            borderBottomLeftRadius: 24,
+            borderBottomRightRadius: 24,
+          }}
+          aria-hidden
+        />
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{ bottom: -28 }}
+        >
+          {profile?.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt={displayName}
+              width={56}
+              height={56}
+              className="rounded-full object-cover"
+              style={{ border: "3px solid #fff", boxShadow: "var(--fs-shadow-card)" }}
+            />
+          ) : (
+            <div
+              className="grid place-items-center font-bold text-white"
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 999,
+                backgroundColor: "#2E7D32",
+                border: "3px solid #fff",
+                fontSize: 18,
+                boxShadow: "var(--fs-shadow-card)",
+              }}
+              aria-label={`Avatar for ${displayName}`}
+            >
+              {initials}
+            </div>
+          )}
         </div>
       </div>
+
+      <div className="text-center pt-10 px-4">
+        <h1 className="text-base font-bold" style={{ color: "#111827" }}>
+          {displayName}
+        </h1>
+        <p className="text-xs" style={{ color: "#6B7280" }}>{user?.email}</p>
+        {roleLabel && (
+          <span
+            className="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-full text-[11px] font-semibold"
+            style={{ backgroundColor: "#F1F8E9", color: "#2E7D32" }}
+          >
+            {roleLabel}
+          </span>
+        )}
+      </div>
+
+      <div className="px-4 pt-6 space-y-6">
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
@@ -303,6 +351,7 @@ function ProfilePage() {
         <LogOut className="h-4 w-4 mr-2" />
         Log Out
       </Button>
+      </div>
     </div>
   );
 }
