@@ -394,6 +394,86 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function SafetyScoreCard({ incidents }: { incidents: Incident[] | null }) {
+  if (incidents === null) {
+    return <Skeleton className="h-24 w-full rounded-2xl" />;
+  }
+  // Score: 100 - weighted by recent (≤30d) unresolved counts.
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const recent = incidents.filter((i) => new Date(i.created_at).getTime() >= cutoff);
+  const unresolved = recent.filter((i) => i.status !== "Resolved");
+  const weight = unresolved.reduce(
+    (a, i) => a + (i.severity === "High" ? 6 : i.severity === "Medium" ? 3 : 1),
+    0,
+  );
+  const score = Math.max(0, Math.min(100, 100 - weight * 4));
+  const color = score >= 71 ? "#43A047" : score >= 41 ? "#FB8C00" : "#E53935";
+  const label = score >= 71 ? "Good" : score >= 41 ? "Caution" : "Action needed";
+
+  // SVG ring math
+  const r = 26;
+  const c = 2 * Math.PI * r;
+  const dash = (score / 100) * c;
+
+  return (
+    <div
+      className="relative bg-white rounded-2xl p-4 fs-shadow-card flex items-center gap-4 overflow-hidden"
+      style={{ border: "1px solid #F3F4F6" }}
+      role="region"
+      aria-label="District water safety score"
+    >
+      <svg width={64} height={64} viewBox="0 0 64 64" aria-hidden>
+        <circle cx={32} cy={32} r={r} stroke="#F3F4F6" strokeWidth={6} fill="none" />
+        <circle
+          cx={32}
+          cy={32}
+          r={r}
+          stroke={color}
+          strokeWidth={6}
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${c}`}
+          transform="rotate(-90 32 32)"
+          style={{ transition: "stroke-dasharray 600ms ease" }}
+        />
+        <text
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dominantBaseline="central"
+          style={{ fontSize: 16, fontWeight: 700, fill: "#111827" }}
+        >
+          {score}
+        </text>
+      </svg>
+      <div className="flex-1 min-w-0">
+        <div style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>
+          District Water Safety
+        </div>
+        <div className="text-xs mt-0.5" style={{ color: "#6B7280" }}>
+          Based on {recent.length} report{recent.length === 1 ? "" : "s"} · last 30 days
+        </div>
+        <div
+          className="mt-1 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider"
+          style={{ color }}
+        >
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: color }}
+            aria-hidden
+          />
+          {label}
+        </div>
+      </div>
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0"
+        style={{ height: 4, backgroundColor: color }}
+      />
+    </div>
+  );
+}
+
 function IncidentDetail({
   incident,
   reporterName,
