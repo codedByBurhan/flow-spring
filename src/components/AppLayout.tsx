@@ -10,6 +10,7 @@ import { ErrorBoundary } from "./ErrorBoundary";
 
 const tabs = [
   { to: "/home", label: "Home", icon: Home },
+  { to: "/report", label: "Report", icon: Plus },
   { to: "/map", label: "Map", icon: MapPin },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;

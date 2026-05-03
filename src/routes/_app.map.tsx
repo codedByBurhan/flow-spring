@@ -126,10 +126,7 @@ function MapPage() {
   }, [selected, geo.latitude, geo.longitude]);
 
   return (
-    <div
-      className="relative w-full overflow-hidden"
-      style={{ height: "calc(100dvh - 5rem)", minHeight: 480 }}
-    >
+    <div className="relative w-full overflow-hidden fs-map-h">
       {incidents === null && (
         <Skeleton className="absolute inset-0 z-[10] rounded-none" />
       )}

@@ -2,6 +2,25 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { LogOut } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { IncidentDetailContent } from "@/components/IncidentDetailContent";
+import { EscalationPill } from "@/components/EscalationPill";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -58,6 +77,8 @@ function ProfilePage() {
   const [stats, setStats] = useState({ submitted: 0, verified: 0, resolved: 0 });
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState<SettingsState>(DEFAULT_SETTINGS);
+  const [selected, setSelected] = useState<Incident | null>(null);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -252,34 +273,43 @@ function ProfilePage() {
         ) : reports && reports.length > 0 ? (
           <ul className="space-y-2">
             {reports.map((r) => (
-              <Card key={r.id} className="p-3 bg-card">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-medium truncate">{r.incident_type}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {format(new Date(r.created_at), "MMM d, yyyy · h:mm a")}
+              <li key={r.id}>
+                <button
+                  type="button"
+                  onClick={() => setSelected(r)}
+                  className="w-full text-left fs-press"
+                >
+                  <Card className="p-3 bg-card">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{r.incident_type}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {format(new Date(r.created_at), "MMM d, yyyy · h:mm a")}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <Badge
+                          style={{
+                            backgroundColor: SEVERITY_COLORS[r.severity] ?? "#999",
+                            color: r.severity === "Low" ? "#212121" : "#fff",
+                          }}
+                        >
+                          {r.severity}
+                        </Badge>
+                        <Badge
+                          style={{
+                            backgroundColor: STATUS_COLORS[r.status] ?? "#999",
+                            color: "#fff",
+                          }}
+                        >
+                          {r.status}
+                        </Badge>
+                        <EscalationPill createdAt={r.created_at} status={r.status} />
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <Badge
-                      style={{
-                        backgroundColor: SEVERITY_COLORS[r.severity] ?? "#999",
-                        color: r.severity === "Low" ? "#212121" : "#fff",
-                      }}
-                    >
-                      {r.severity}
-                    </Badge>
-                    <Badge
-                      style={{
-                        backgroundColor: STATUS_COLORS[r.status] ?? "#999",
-                        color: "#fff",
-                      }}
-                    >
-                      {r.status}
-                    </Badge>
-                  </div>
-                </div>
-              </Card>
+                  </Card>
+                </button>
+              </li>
             ))}
           </ul>
         ) : (
@@ -344,7 +374,7 @@ function ProfilePage() {
       {/* Logout */}
       <Button
         variant="outline"
-        onClick={handleSignOut}
+        onClick={() => setConfirmLogout(true)}
         className="w-full min-h-[44px] border-2"
         style={{ borderColor: "#E53935", color: "#E53935" }}
       >
@@ -352,6 +382,42 @@ function ProfilePage() {
         Log Out
       </Button>
       </div>
+
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          {selected && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selected.incident_type}</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Incident details and status
+                </DialogDescription>
+              </DialogHeader>
+              <IncidentDetailContent incident={selected} />
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmLogout} onOpenChange={setConfirmLogout}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Log out of FlowSpring?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You'll need to sign in again to submit reports or see your impact.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSignOut}
+              style={{ backgroundColor: "#E53935", color: "#fff" }}
+            >
+              Log out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

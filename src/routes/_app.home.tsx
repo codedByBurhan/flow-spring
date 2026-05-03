@@ -303,7 +303,18 @@ function HomePage() {
       <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
         <SheetContent side="right" className="w-full sm:max-w-sm">
           <SheetHeader>
-            <SheetTitle>Notifications</SheetTitle>
+            <div className="flex items-center justify-between gap-2">
+              <SheetTitle>Notifications</SheetTitle>
+              {notifications.some((n) => !n.read) && (
+                <button
+                  type="button"
+                  onClick={() => void markAllRead()}
+                  className="text-xs font-semibold text-primary hover:underline"
+                >
+                  Mark all read
+                </button>
+              )}
+            </div>
             <SheetDescription className="sr-only">
               Status updates and alerts on your reports
             </SheetDescription>
