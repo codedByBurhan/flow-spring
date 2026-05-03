@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { FileEdit } from "lucide-react";
+import { FileEdit, Navigation } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
@@ -87,6 +87,15 @@ export function IncidentDetailContent({
         </div>
         {reporterName && <div>👤 {reporterName}</div>}
       </div>
+
+      <a
+        href={`https://www.openstreetmap.org/?mlat=${incident.latitude}&mlon=${incident.longitude}#map=17/${incident.latitude}/${incident.longitude}`}
+        target="_blank"
+        rel="noreferrer noopener"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+      >
+        <Navigation className="h-3.5 w-3.5" /> Open location in Maps
+      </a>
 
       {/* Resolution card when resolved */}
       {incident.status === "Resolved" && (

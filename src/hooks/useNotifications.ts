@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import type { NotificationRow } from "@/types";
@@ -41,6 +42,7 @@ export function useNotifications() {
         (payload) => {
           const n = payload.new as NotificationRow;
           setNotifications((prev) => [n, ...prev].slice(0, 50));
+          toast(`${n.icon ?? "🔔"} ${n.message}`, { duration: 5000 });
         },
       )
       .subscribe();
