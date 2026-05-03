@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { format } from "date-fns";
+import { motion, useReducedMotion } from "framer-motion";
 import { INCIDENT_STAGES, type IncidentStatusHistory } from "@/types";
 import { STATUS_COLORS } from "@/lib/incidents";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ interface StatusStepperProps {
 export function StatusStepper({ currentStatus, history = [] }: StatusStepperProps) {
   const currentIdx = INCIDENT_STAGES.indexOf(currentStatus as (typeof INCIDENT_STAGES)[number]);
   const safeIdx = currentIdx === -1 ? 0 : currentIdx;
+  const reduce = useReducedMotion();
 
   // Build map: latest history entry per stage
   const historyByStage = new Map<string, IncidentStatusHistory>();
@@ -41,21 +43,28 @@ export function StatusStepper({ currentStatus, history = [] }: StatusStepperProp
               style={{ minWidth: 80 }}
             >
               <div className="flex flex-col items-center" style={{ width: 80 }}>
-                <div
+                <motion.div
+                  layout
+                  initial={false}
+                  animate={
+                    reduce
+                      ? undefined
+                      : { scale: isCurrent ? 1.12 : 1 }
+                  }
+                  transition={{ type: "spring", stiffness: 320, damping: 22 }}
                   className={cn(
-                    "h-9 w-9 rounded-full grid place-items-center text-xs font-bold border-2 shrink-0 transition-all",
-                    isCurrent && "ring-2 ring-offset-2 scale-110",
+                    "h-9 w-9 rounded-full grid place-items-center text-xs font-bold border-2 shrink-0",
                   )}
                   style={{
                     backgroundColor: isFuture ? "transparent" : color,
                     borderColor: color,
                     color: isFuture ? color : "#fff",
-                    ...(isCurrent ? { boxShadow: `0 0 0 2px ${color}33` } : {}),
+                    ...(isCurrent ? { boxShadow: `0 0 0 4px ${color}33` } : {}),
                   }}
                   aria-current={isCurrent ? "step" : undefined}
                 >
                   {isPast ? <Check className="h-4 w-4" /> : idx + 1}
-                </div>
+                </motion.div>
                 <div
                   className={cn(
                     "mt-1.5 text-[10px] text-center leading-tight px-0.5",
