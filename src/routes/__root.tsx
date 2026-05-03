@@ -46,6 +46,11 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "FlowSpring · Water Safety Network" },
+      { name: "description", content: "Report unsafe water directly to authorities in 90 seconds. Community tracking, live maps, and NGO dashboards — built for rural India, aligned with SDG 6.3." },
+      { property: "og:description", content: "Report unsafe water directly to authorities in 90 seconds. Community tracking, live maps, and NGO dashboards — built for rural India, aligned with SDG 6.3." },
+      { name: "twitter:description", content: "Report unsafe water directly to authorities in 90 seconds. Community tracking, live maps, and NGO dashboards — built for rural India, aligned with SDG 6.3." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/20810fa4-fd50-49cf-9f4e-1a536a8ee01f" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/20810fa4-fd50-49cf-9f4e-1a536a8ee01f" },
     ],
     links: [
       {
