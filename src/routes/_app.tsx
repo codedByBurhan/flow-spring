@@ -1,15 +1,8 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout } from "@/components/AppLayout";
-import { supabase } from "@/integrations/supabase/client";
 
+// Guests can browse Home, Map, and Profile. Routes that require auth
+// (e.g. /report) gate themselves individually.
 export const Route = createFileRoute("/_app")({
-  beforeLoad: async ({ location }) => {
-    if (typeof window === "undefined") return;
-
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) {
-      throw redirect({ to: "/login", search: { redirect: location.href } as never });
-    }
-  },
   component: AppLayout,
 });
