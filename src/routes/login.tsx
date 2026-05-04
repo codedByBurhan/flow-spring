@@ -42,7 +42,7 @@ function LoginPage() {
   return (
     <main className="min-h-screen bg-background flex flex-col">
       <div
-        className="relative px-6 pt-8 pb-16"
+        className="relative px-6 pt-8 pb-24"
         style={{
           background: "linear-gradient(135deg, #2E7D32 0%, #43A047 100%)",
           borderBottomLeftRadius: 28,
@@ -62,7 +62,7 @@ function LoginPage() {
           <p className="text-xs opacity-90 mt-1">Log in to continue protecting your community's water</p>
         </div>
       </div>
-      <div className="flex-1 px-6 -mt-10 pb-12">
+      <div className="flex-1 px-6 -mt-12 pb-12">
         <form
           onSubmit={handleSubmit}
           className="w-full max-w-sm mx-auto space-y-4 bg-white p-6 rounded-2xl fs-shadow-card"
