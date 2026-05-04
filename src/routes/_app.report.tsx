@@ -50,26 +50,21 @@ type Severity = "Low" | "Medium" | "High";
 
 function ReportPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const geo = useGeolocation();
   const [language, setLanguage] = useState<string>("en-IN");
 
   // Guests cannot submit reports — bounce to login with a friendly toast.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (user === null) {
-      // Wait a tick to avoid firing during the brief auth-loading window
-      const t = setTimeout(() => {
-        if (!user) {
-          toast.message("Sign in to report an incident", {
-            description: "Reports help us track and resolve water issues — please log in or sign up.",
-          });
-          navigate({ to: "/login", search: { redirect: "/report" } as never });
-        }
-      }, 50);
-      return () => clearTimeout(t);
+    if (authLoading) return;
+    if (!user) {
+      toast.message("Sign in to report an incident", {
+        description: "Reports help us track and resolve water issues — please log in or sign up.",
+      });
+      navigate({ to: "/login", search: { redirect: "/report" } as never });
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (!user) return;
