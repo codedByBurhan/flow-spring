@@ -64,7 +64,7 @@ function SignupPage() {
   return (
     <main className="min-h-screen bg-background flex flex-col">
       <div
-        className="relative px-6 pt-8 pb-24"
+        className="relative px-6 pt-6 pb-8"
         style={{
           background: "linear-gradient(135deg, #2E7D32 0%, #43A047 100%)",
           borderBottomLeftRadius: 28,
@@ -78,13 +78,15 @@ function SignupPage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <div className="flex flex-col items-center text-white mt-3">
-          <FlowSpringLogo size={56} />
-          <h1 className="text-2xl font-extrabold mt-3">Join FlowSpring</h1>
-          <p className="text-xs opacity-90 mt-1">Create your account to start reporting</p>
+        <div className="flex flex-col items-center text-white mt-2 text-center">
+          <FlowSpringLogo size={44} />
+          <h1 className="text-xl font-extrabold mt-2 leading-tight">Join FlowSpring</h1>
+          <p className="text-xs opacity-90 mt-1 max-w-[18rem] leading-snug">
+            Create your account to start reporting
+          </p>
         </div>
       </div>
-      <div className="flex-1 px-6 -mt-12 pb-12">
+      <div className="flex-1 px-6 pt-5 pb-12">
         <form
           onSubmit={handleSubmit}
           className="w-full max-w-sm mx-auto space-y-4 bg-white p-6 rounded-2xl fs-shadow-card"
