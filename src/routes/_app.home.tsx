@@ -513,6 +513,7 @@ function IncidentDetail({
               incident={incident}
               reporterName={reporterName}
               organisation={organisation}
+              onDeleted={onClose}
             />
           </>
         )}
