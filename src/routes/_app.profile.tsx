@@ -393,7 +393,10 @@ function ProfilePage() {
                   Incident details and status
                 </DialogDescription>
               </DialogHeader>
-              <IncidentDetailContent incident={selected} />
+              <IncidentDetailContent
+                incident={selected}
+                onDeleted={() => setSelected(null)}
+              />
             </>
           )}
         </DialogContent>
