@@ -203,6 +203,7 @@ function MapPage() {
                   reporterName={reporterName}
                   distanceLabel={distanceLabel}
                   organisation={organisation}
+                  onDeleted={() => setSelected(null)}
                 />
               </div>
             </>

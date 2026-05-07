@@ -1,8 +1,20 @@
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { FileEdit, Navigation } from "lucide-react";
+import { FileEdit, Navigation, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { SEVERITY_COLORS, STATUS_COLORS } from "@/lib/incidents";
 import { QualityChips } from "@/components/QualityChips";
 import { VerifyButton } from "@/components/VerifyButton";
@@ -20,6 +32,7 @@ interface IncidentDetailContentProps {
   reporterName?: string | null;
   distanceLabel?: string | null;
   organisation?: string | null;
+  onDeleted?: () => void;
 }
 
 export function IncidentDetailContent({
@@ -27,13 +40,30 @@ export function IncidentDetailContent({
   reporterName,
   distanceLabel,
   organisation,
+  onDeleted,
 }: IncidentDetailContentProps) {
   const { user } = useAuth();
-  const { canUpdateStatus } = useUserRoles();
+  const { canUpdateStatus, hasRole } = useUserRoles();
   const { history } = useIncidentHistory(incident.id);
   const [updateOpen, setUpdateOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const showUpdateButton = !!user && canUpdateStatus;
+  const isAdmin = !!user && hasRole("admin");
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    const { error } = await supabase.from("incidents").delete().eq("id", incident.id);
+    setDeleting(false);
+    if (error) {
+      toast.error("Failed to delete report", { description: error.message });
+      return;
+    }
+    toast.success("Report deleted");
+    setDeleteOpen(false);
+    onDeleted?.();
+  };
 
   return (
     <div className="space-y-4">
@@ -126,6 +156,43 @@ export function IncidentDetailContent({
           onOpenChange={setUpdateOpen}
           defaultOrganisation={organisation}
         />
+      )}
+
+      {isAdmin && (
+        <>
+          <Button
+            type="button"
+            onClick={() => setDeleteOpen(true)}
+            variant="outline"
+            className="w-full h-12 gap-2 border-2 border-destructive text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete report
+          </Button>
+          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this report?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This permanently removes the incident and its history. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void handleDelete();
+                  }}
+                  disabled={deleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
       )}
     </div>
   );
