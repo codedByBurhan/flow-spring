@@ -264,19 +264,6 @@ Built as part of *Innovation and Design Thinking*, Spring 2026, **BITS Pilani Du
 
 ---
 
-## 👥 Team
-
-**Group 3 · L1G2**
-
-| Name | Role |
-|---|---|
-| Burhanuddin Yusuf Jawadwala | |
-| Siddharth Yadav | |
-| Abraham Cherian | |
-| Anubhav Gupta | |
-| Reuben Singh Kalsi | |
-
----
 
 <div align="center">
 
