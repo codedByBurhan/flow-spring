@@ -69,7 +69,7 @@ No intermediary. No silence. No way to pretend it wasn't seen.
 
 <div align="center">
 
-**🔗 [flowspring.lovable.app](https://flowspring.lovable.app)**
+**🔗 [flowspring.lovable.app](https://flow-spring.lovable.app)**
 
 *Scan to try it on your phone:*
 
