@@ -1,0 +1,13 @@
+# FlowSpring
+
+> Community water safety network. Report unsafe water in 90 seconds, view a live incident map, and route reports to NGOs and authorities. Aligned with UN SDG 6.
+
+FlowSpring lets residents file geo-tagged reports about contaminated water, broken pipes, dry taps, sewage overflow, and chemical smells. The community verifies reports, NGOs and field agents triage them, and resolutions are tracked publicly.
+
+## Pages
+
+- [Home](/): What FlowSpring is and how to get started.
+- [Dashboard](/home): Nearby incidents, district safety score, and recent alerts.
+- [Incident Map](/map): Live map of reported water incidents with filters.
+- [Report an Incident](/report): File a water safety report with photo and location.
+- [Test Your Water — Guide](/guide/test-water): How to test home water quality and read the results.

@@ -29,7 +29,24 @@ const TYPE_ICONS: Record<string, string> = {
 };
 
 export const Route = createFileRoute("/_app/report")({
-  head: () => ({ meta: [{ title: "Report Incident — FlowSpring" }] }),
+  head: () => ({
+    meta: [
+      { title: "Report a Water Incident — FlowSpring" },
+      {
+        name: "description",
+        content:
+          "Report a water safety issue — contaminated water, broken pipes, dry taps, sewage overflow — in 90 seconds with photo and GPS.",
+      },
+      { property: "og:title", content: "Report a Water Incident — FlowSpring" },
+      {
+        property: "og:description",
+        content:
+          "File a water safety report with photo, severity, and location — community-verified, NGO-routed.",
+      },
+      { property: "og:url", content: "https://flow-spring.lovable.app/report" },
+    ],
+    links: [{ rel: "canonical", href: "https://flow-spring.lovable.app/report" }],
+  }),
   component: ReportPage,
 });
 

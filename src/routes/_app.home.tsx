@@ -35,7 +35,24 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_app/home")({
-  head: () => ({ meta: [{ title: "Home — FlowSpring" }] }),
+  head: () => ({
+    meta: [
+      { title: "Water Safety Dashboard — FlowSpring" },
+      {
+        name: "description",
+        content:
+          "See water incidents reported near you, your district safety score, and recent community alerts on FlowSpring.",
+      },
+      { property: "og:title", content: "Water Safety Dashboard — FlowSpring" },
+      {
+        property: "og:description",
+        content:
+          "Nearby water incidents, live safety score, and community alerts at a glance.",
+      },
+      { property: "og:url", content: "https://flow-spring.lovable.app/home" },
+    ],
+    links: [{ rel: "canonical", href: "https://flow-spring.lovable.app/home" }],
+  }),
   component: HomePage,
 });
 
@@ -160,6 +177,7 @@ function HomePage() {
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
+        <h1 className="sr-only">Water Safety Dashboard</h1>
         {/* District safety score */}
         <SafetyScoreCard incidents={incidents} />
 

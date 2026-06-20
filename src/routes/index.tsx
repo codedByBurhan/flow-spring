@@ -7,13 +7,21 @@ export const Route = createFileRoute("/")({
   component: Splash,
   head: () => ({
     meta: [
-      { title: "FlowSpring — Water Safety Network · SDG 6" },
+      { title: "FlowSpring — Community Water Safety Network · SDG 6" },
       {
         name: "description",
         content:
-          "Community water safety reporting platform supporting UN SDG 6. Report incidents, view the map, and protect clean water access.",
+          "FlowSpring is a community water safety network aligned with UN SDG 6. Report unsafe water, view a live incident map, and protect clean water access.",
       },
+      { property: "og:title", content: "FlowSpring — Community Water Safety Network" },
+      {
+        property: "og:description",
+        content:
+          "Report unsafe water in 90 seconds and see live community alerts on a shared map.",
+      },
+      { property: "og:url", content: "https://flow-spring.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://flow-spring.lovable.app/" }],
   }),
 });
 
@@ -29,6 +37,7 @@ function Splash() {
           style={{ color: "#2E7D32", letterSpacing: "-0.5px", animationDelay: "200ms" }}
         >
           FlowSpring
+          <span className="sr-only"> — Community Water Safety Network</span>
         </h1>
         <p
           className="fs-fade-up text-xs -mt-2"

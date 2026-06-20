@@ -43,7 +43,23 @@ import { EmptyState } from "@/components/EmptyState";
 import { useUserRoles } from "@/hooks/useUserRoles";
 
 export const Route = createFileRoute("/_app/profile")({
-  head: () => ({ meta: [{ title: "Profile — FlowSpring" }] }),
+  head: () => ({
+    meta: [
+      { title: "Your Profile — FlowSpring" },
+      {
+        name: "description",
+        content:
+          "Track your submitted water incident reports, view your community impact, and manage notification and language settings.",
+      },
+      { property: "og:title", content: "Your Profile — FlowSpring" },
+      {
+        property: "og:description",
+        content: "Your reports, impact stats, and FlowSpring account settings.",
+      },
+      { property: "og:url", content: "https://flow-spring.lovable.app/profile" },
+    ],
+    links: [{ rel: "canonical", href: "https://flow-spring.lovable.app/profile" }],
+  }),
   component: ProfilePage,
 });
 

@@ -35,20 +35,13 @@ export const Route = createRootRoute({
       { title: "FlowSpring · Water Safety Network" },
       {
         name: "description",
-        content: "Community water safety reporting platform supporting clean water access.",
+        content:
+          "FlowSpring helps communities report unsafe water in 90 seconds. Live incident map, NGO dashboards, and SDG 6 alignment.",
       },
       { name: "author", content: "FlowSpring" },
-      { property: "og:title", content: "FlowSpring · Water Safety Network" },
-      {
-        property: "og:description",
-        content: "Report local water safety incidents and view nearby community alerts.",
-      },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "FlowSpring" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "FlowSpring · Water Safety Network" },
-      { name: "description", content: "Report unsafe water directly to authorities in 90 seconds. Community tracking, live maps, and NGO dashboards — built for rural India, aligned with SDG 6.3." },
-      { property: "og:description", content: "Report unsafe water directly to authorities in 90 seconds. Community tracking, live maps, and NGO dashboards — built for rural India, aligned with SDG 6.3." },
-      { name: "twitter:description", content: "Report unsafe water directly to authorities in 90 seconds. Community tracking, live maps, and NGO dashboards — built for rural India, aligned with SDG 6.3." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/20810fa4-fd50-49cf-9f4e-1a536a8ee01f" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/20810fa4-fd50-49cf-9f4e-1a536a8ee01f" },
     ],
@@ -65,6 +58,29 @@ export const Route = createRootRoute({
           encodeURIComponent(
             `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 120'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='#43A047'/><stop offset='100%' stop-color='#2E7D32'/></linearGradient></defs><path d='M50 5 C50 5, 15 50, 15 78 C15 99, 31 115, 50 115 C69 115, 85 99, 85 78 C85 50, 50 5, 50 5 Z' fill='url(#g)'/><path d='M35 75 C35 90, 45 100, 55 100' stroke='white' stroke-width='4' stroke-linecap='round' fill='none' opacity='0.9'/></svg>`,
           ),
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "FlowSpring",
+          url: "https://flow-spring.lovable.app",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "FlowSpring",
+          url: "https://flow-spring.lovable.app",
+          logo: "https://flow-spring.lovable.app/favicon.ico",
+          description:
+            "FlowSpring is a community water safety network aligned with UN SDG 6, helping people report incidents and protect clean water access.",
+        }),
       },
     ],
   }),

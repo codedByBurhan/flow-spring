@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /signup
+Disallow: /profile
+
+Sitemap: https://flow-spring.lovable.app/sitemap.xml

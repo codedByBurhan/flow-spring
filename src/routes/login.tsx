@@ -14,7 +14,20 @@ export const Route = createFileRoute("/login")({
       typeof search.redirect === "string" && search.redirect ? search.redirect : undefined,
   }),
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Log In — FlowSpring" }] }),
+  head: () => ({
+    meta: [
+      { title: "Log In — FlowSpring" },
+      {
+        name: "description",
+        content: "Log in to FlowSpring to submit water incident reports and track your community impact.",
+      },
+      { property: "og:title", content: "Log In — FlowSpring" },
+      { property: "og:description", content: "Sign in to your FlowSpring water safety account." },
+      { property: "og:url", content: "https://flow-spring.lovable.app/login" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://flow-spring.lovable.app/login" }],
+  }),
 });
 
 function LoginPage() {
