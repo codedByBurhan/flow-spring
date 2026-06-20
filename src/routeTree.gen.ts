@@ -9,15 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GuideTestWaterRouteImport } from './routes/guide.test-water'
 import { Route as AppReportRouteImport } from './routes/_app.report'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppMapRouteImport } from './routes/_app.map'
 import { Route as AppHomeRouteImport } from './routes/_app.home'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -35,6 +42,11 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideTestWaterRoute = GuideTestWaterRouteImport.update({
+  id: '/guide/test-water',
+  path: '/guide/test-water',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppReportRoute = AppReportRouteImport.update({
@@ -62,19 +74,23 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/home': typeof AppHomeRoute
   '/map': typeof AppMapRoute
   '/profile': typeof AppProfileRoute
   '/report': typeof AppReportRoute
+  '/guide/test-water': typeof GuideTestWaterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/home': typeof AppHomeRoute
   '/map': typeof AppMapRoute
   '/profile': typeof AppProfileRoute
   '/report': typeof AppReportRoute
+  '/guide/test-water': typeof GuideTestWaterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -82,10 +98,12 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_app/home': typeof AppHomeRoute
   '/_app/map': typeof AppMapRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/report': typeof AppReportRoute
+  '/guide/test-water': typeof GuideTestWaterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -93,22 +111,35 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/sitemap.xml'
     | '/home'
     | '/map'
     | '/profile'
     | '/report'
+    | '/guide/test-water'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/home' | '/map' | '/profile' | '/report'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/sitemap.xml'
+    | '/home'
+    | '/map'
+    | '/profile'
+    | '/report'
+    | '/guide/test-water'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/login'
     | '/signup'
+    | '/sitemap.xml'
     | '/_app/home'
     | '/_app/map'
     | '/_app/profile'
     | '/_app/report'
+    | '/guide/test-water'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -116,10 +147,19 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  GuideTestWaterRoute: typeof GuideTestWaterRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -146,6 +186,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/test-water': {
+      id: '/guide/test-water'
+      path: '/guide/test-water'
+      fullPath: '/guide/test-water'
+      preLoaderRoute: typeof GuideTestWaterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/report': {
@@ -200,6 +247,8 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  GuideTestWaterRoute: GuideTestWaterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

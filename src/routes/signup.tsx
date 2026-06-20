@@ -10,7 +10,20 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
-  head: () => ({ meta: [{ title: "Sign Up — FlowSpring" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign Up — FlowSpring" },
+      {
+        name: "description",
+        content: "Create a free FlowSpring account to report water safety incidents and join the community network.",
+      },
+      { property: "og:title", content: "Sign Up — FlowSpring" },
+      { property: "og:description", content: "Join FlowSpring and help protect your community's water." },
+      { property: "og:url", content: "https://flow-spring.lovable.app/signup" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://flow-spring.lovable.app/signup" }],
+  }),
 });
 
 function SignupPage() {

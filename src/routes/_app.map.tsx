@@ -21,7 +21,24 @@ import { IncidentDetailContent } from "@/components/IncidentDetailContent";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/_app/map")({
-  head: () => ({ meta: [{ title: "Map — FlowSpring" }] }),
+  head: () => ({
+    meta: [
+      { title: "Water Incident Map — FlowSpring" },
+      {
+        name: "description",
+        content:
+          "Live map of reported water incidents — filter by type and status to see what's happening in your area.",
+      },
+      { property: "og:title", content: "Water Incident Map — FlowSpring" },
+      {
+        property: "og:description",
+        content:
+          "Explore reported water incidents on an interactive map, filter by type, and check resolution status.",
+      },
+      { property: "og:url", content: "https://flow-spring.lovable.app/map" },
+    ],
+    links: [{ rel: "canonical", href: "https://flow-spring.lovable.app/map" }],
+  }),
   component: MapPage,
 });
 
@@ -127,6 +144,7 @@ function MapPage() {
 
   return (
     <div className="relative w-full overflow-hidden fs-map-h">
+      <h1 className="sr-only">Water Incident Map</h1>
       {incidents === null && (
         <Skeleton className="absolute inset-0 z-[10] rounded-none" />
       )}
