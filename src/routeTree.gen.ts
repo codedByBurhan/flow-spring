@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GuideTestWaterRouteImport } from './routes/guide.test-water'
+import { Route as GuideCommonContaminantsRouteImport } from './routes/guide.common-contaminants'
 import { Route as AppReportRouteImport } from './routes/_app.report'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppMapRouteImport } from './routes/_app.map'
@@ -49,6 +50,11 @@ const GuideTestWaterRoute = GuideTestWaterRouteImport.update({
   path: '/guide/test-water',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuideCommonContaminantsRoute = GuideCommonContaminantsRouteImport.update({
+  id: '/guide/common-contaminants',
+  path: '/guide/common-contaminants',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppReportRoute = AppReportRouteImport.update({
   id: '/report',
   path: '/report',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/map': typeof AppMapRoute
   '/profile': typeof AppProfileRoute
   '/report': typeof AppReportRoute
+  '/guide/common-contaminants': typeof GuideCommonContaminantsRoute
   '/guide/test-water': typeof GuideTestWaterRoute
 }
 export interface FileRoutesByTo {
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/map': typeof AppMapRoute
   '/profile': typeof AppProfileRoute
   '/report': typeof AppReportRoute
+  '/guide/common-contaminants': typeof GuideCommonContaminantsRoute
   '/guide/test-water': typeof GuideTestWaterRoute
 }
 export interface FileRoutesById {
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/_app/map': typeof AppMapRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/report': typeof AppReportRoute
+  '/guide/common-contaminants': typeof GuideCommonContaminantsRoute
   '/guide/test-water': typeof GuideTestWaterRoute
 }
 export interface FileRouteTypes {
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/profile'
     | '/report'
+    | '/guide/common-contaminants'
     | '/guide/test-water'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/profile'
     | '/report'
+    | '/guide/common-contaminants'
     | '/guide/test-water'
   id:
     | '__root__'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/_app/map'
     | '/_app/profile'
     | '/_app/report'
+    | '/guide/common-contaminants'
     | '/guide/test-water'
   fileRoutesById: FileRoutesById
 }
@@ -148,6 +160,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  GuideCommonContaminantsRoute: typeof GuideCommonContaminantsRoute
   GuideTestWaterRoute: typeof GuideTestWaterRoute
 }
 
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/guide/test-water'
       fullPath: '/guide/test-water'
       preLoaderRoute: typeof GuideTestWaterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/common-contaminants': {
+      id: '/guide/common-contaminants'
+      path: '/guide/common-contaminants'
+      fullPath: '/guide/common-contaminants'
+      preLoaderRoute: typeof GuideCommonContaminantsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/report': {
@@ -248,6 +268,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  GuideCommonContaminantsRoute: GuideCommonContaminantsRoute,
   GuideTestWaterRoute: GuideTestWaterRoute,
 }
 export const routeTree = rootRouteImport

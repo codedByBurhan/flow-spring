@@ -406,7 +406,7 @@ function ReportPage() {
             <div className="relative">
               <img
                 src={photoPreview}
-                alt="Preview"
+                alt="Incident photo preview"
                 className="w-full max-h-64 object-cover rounded-lg border"
               />
               <button
