@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 const URL = "https://flow-spring.lovable.app/guide/test-water";
-const TITLE = "How to Test Your Home Water Quality and Understand the Results";
+const TITLE = "How to Test Home Water Quality";
+const PAGE_TITLE = "How to Test Home Water Quality — FlowSpring";
 const DESCRIPTION =
   "A practical guide to testing your home water quality — what to look, smell, and test for, how to read a water quality report, and what to do next.";
 
@@ -9,7 +10,7 @@ export const Route = createFileRoute("/guide/test-water")({
   component: GuidePage,
   head: () => ({
     meta: [
-      { title: `${TITLE} — FlowSpring` },
+      { title: PAGE_TITLE },
       { name: "description", content: DESCRIPTION },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
